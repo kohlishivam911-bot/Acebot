@@ -290,6 +290,79 @@ measure with the real tokeniser first, then move facts to retrieval (§4a), then
 ask whether the ceiling itself is the right number. Cutting an interrupt is not on
 the list.
 
+## 1a-vii. A closed list becomes a template
+
+Bob says this outright, and I did the opposite:
+
+> **Do NOT hardcode specific regional filler phrases or softeners in the prompt.**
+> Instead, instruct the bot to "respond naturally and conversationally in
+> [language]" and let the LLM generate natural speech patterns for that language
+> at runtime. — `BUILD_SYS`, line 705
+
+The prompt listed five approved fillers — जी, अच्छा, ठीक है, सुनिए, कोई बात नहीं. The
+model cycled through them mechanically and produced the same skeleton five turns
+running:
+
+    अच्छा, तो ये दर्द कहाँ हो रहा है?
+    ठीक है, तो ये दर्द पूरे शरीर में हो रहा है?
+    अच्छा, तो क्या मैं appointment करा दूँ?
+
+Every rule obeyed. One filler, one connector, joined with a comma, under twenty
+words, no sympathy. And a caller hears a template.
+
+**Closed lists for what to avoid; open instructions for what to produce.** A ban
+list should be exhaustive — you want every formal word named, because you want
+them all avoided. A generative choice must never be enumerated, because whatever
+you enumerate becomes the entire space the model draws from. Specify the
+*function* and the *length*, never the vocabulary.
+
+### Variety has to be specified structurally
+
+"Never use the same acknowledgement twice in a row" was already in the prompt. It
+held — the words rotated. The *shape* did not, because nothing asked it to.
+Lexical variety with fixed syntax still reads as a machine.
+
+So the instruction names shapes and requires rotation: straight into the question
+with no preamble; an echo of their words then the question; one short word then the
+question. Plus the specific tic ban — never open two turns the same way, never use
+the same connector twice in a row.
+
+Note what this costs: it partly reverses §1a-iii, which made the connector
+mandatory to fix staccato. Mandatory became compulsive. The stable form of any
+such rule is **"use it, vary it, not every turn"** — not "always" and not "never".
+Both extremes are visible to the caller within four turns.
+
+### Put the actual failure in the prompt
+
+The negative example above is quoted verbatim into the prompt, wrong output and
+all. A concrete failure the model can pattern-match against outperforms an
+abstract instruction not to be repetitive — the same reason Bob wrote WRONG/RIGHT
+pairs from each bot's own steps rather than generic ones.
+
+## 1a-viii. Structured facts are a tool call, not a retrieval problem
+
+A budget lever that §4a missed by framing everything as prompt-versus-RAG.
+
+The healthcare prompt spends roughly 200 tokens on a six-row doctor table — name,
+years, fee, per city per department. By §4a that has to stay in the prompt: it is
+quoted on nearly every call and a wrong fee is a commercial error, so a 70%
+retriever cannot carry it.
+
+But it is not a retrieval problem at all. It is a **deterministic lookup keyed on
+two values the flow has already captured** — city and department. A
+`get_doctor(city, department)` tool returns it at 100% accuracy, not 70%, removes
+the table from the prompt, and makes a hallucinated fee structurally impossible
+rather than merely forbidden.
+
+So the triage in §4a needs a prior step: before asking whether a fact belongs in
+the prompt or in retrieval, ask whether it is **structured and keyed**. If the flow
+already holds the key, it is a tool call. Only genuinely unstructured knowledge —
+prose answers, FAQ text, policy explanations — is a retrieval question.
+
+This generalises: price lists, branch addresses, service catalogues, eligibility
+tables, opening hours. Anything the flow can key into should leave the prompt as a
+tool, not as an embedding.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -585,3 +658,8 @@ Run before any prompt ships. This is the Auditor module's specification.
 34. Every verbatim spoken line occupies exactly one source line
 35. Every example obeys every rule — examples teach harder than prose
 36. No spoken line contains a dash, ellipsis, bracket, colon or double space
+37. No closed vocabulary list for anything meant to sound spontaneous
+38. Variety specified as shapes to rotate, not just words not to repeat
+39. No rule is stated as always or never where "use it, vary it" is the real intent
+40. The actual observed failure is quoted into the prompt as a negative example
+41. Structured, keyed facts are a tool call before they are a retrieval question
