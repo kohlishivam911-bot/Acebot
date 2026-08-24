@@ -487,6 +487,78 @@ and was asked for a name instead. The flow said what to collect and never that a
 inbound question is answered first. Any prompt that drives a collection sequence
 needs this rule, or it interrogates.
 
+## 1a-xii. Pushiness is a structural property, not a tone
+
+The prompt drove at the booking, and softening the wording would not have fixed
+it. Pushiness is decided by **what each turn is for**, not by how politely it is
+phrased.
+
+> A pushy bot advances its own goal every turn. A natural bot serves the caller's
+> immediate need, and the goal advances as a consequence.
+
+For an inbound clinic line, what the caller needs in the first thirty seconds is
+to know they have reached the right place. The appointment is how that gets
+delivered — it is not what the call is about. Three mechanics follow, and all
+three are structural:
+
+**Name the outcome indirectly in the opener.** "I'll book you with the right
+doctor" announces a transaction; "मैं देखती हूँ कि कौन से doctor आपको देख सकते हैं" tells
+them what the number is for and promises nothing. The caller learns the frame
+without being sold.
+
+**Earn the ask before making it.** By the time the appointment is raised, the
+caller must already have received something — which specialist handles their
+problem, and that this clinic has one. Then the ask follows from what was just
+said instead of arriving because it is the bot's turn. Practically: the goal is
+never named in the same turn as the qualifying information.
+
+**Offer, do not request.** "आप दिखाना चाहें तो मैं time देख लेती हूँ" leaves the decision
+with the caller; "क्या मैं appointment करा दूँ?" asks them to commit. Same step, same
+outcome, entirely different pressure.
+
+Two supporting rules: one ask only, with a hesitation handled rather than
+re-wrapped as a second ask; and an inbound question answered fully before
+returning to the sequence, since deflecting to keep control is the clearest
+structural signature of selling.
+
+### How I introduced it
+
+Worth recording, because the mistake was subtle. Asked to "set the outcome of the
+call indirectly", I put the outcome in the opener *directly*, then had the
+qualifying step pitch the appointment as well, then let the ask step collapse into
+it. Each edit was locally reasonable; together they raised the booking three times
+before the caller had been given anything.
+
+That is the same intersection blindness as §1a-x: individually sound edits whose
+composition is the defect. For any goal-directed flow, count how many turns
+mention the goal before the caller has received value. More than zero is pushing.
+
+## 1a-xiii. Rules stop being the right instrument
+
+Six rounds of transcript feedback doubled this prompt, from 2,612 tokens to about
+5,000, and every round followed the same shape: a call is reviewed, a real defect
+is found, a rule is added, and the next call exposes a different defect the added
+rule did nothing about.
+
+That loop is not converging, and its cause is the sample size. Each round debugs
+**one transcript**. A single call exercises one path through the flow, so it can
+only ever reveal the defects on that path — and each fix is unvalidated against
+the paths nobody walked.
+
+This is the argument for the drift harness, restated from the other end. Five
+personas run three times each is fifteen calls per build, which would have
+surfaced the template monotony, the Step 4 loop, the ignored inbound question and
+the pushiness **in one pass** rather than across four rounds. It also catches the
+regressions this process cannot see: the mandatory connector added in one round
+and made compulsive in the next would have shown up immediately as the same word
+in every turn.
+
+The general rule for a prompt-generator project: **once feedback rounds start
+producing rules that fix one call and break another, stop adding rules and build
+the measurement.** Prompt length is a symptom here, not the disease — the prompt
+is long because it accumulated fifteen point-fixes that were never consolidated
+against each other, and consolidation needs a test suite to be safe.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -795,3 +867,6 @@ Run before any prompt ships. This is the Auditor module's specification.
 47. No generic transition sentence that would fit any bot — name the fact instead
 48. Every step that can fail states a two-attempt ceiling and a default
 49. An inbound question is answered before the step continues
+50. The goal is not named before the caller has received something of value
+51. The ask offers rather than requests, and is made once
+52. Count the turns mentioning the goal before value is delivered — more than zero is pushing
