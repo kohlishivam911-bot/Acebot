@@ -599,6 +599,71 @@ time देख लेती हूँ?" is malformed, and the prosody consequenc
 grammar: TTS reads the rising tone as uncertainty, so a confident offer arrives
 sounding unsure. The pause after a statement is the handoff.
 
+## 1a-xv. Split the prompt: platform rules, then use case
+
+The structural answer to "many things change per use case, but the platform rules
+stay the same". Every prompt is two blocks.
+
+**PLATFORM RULES — identical for every bot, never edited per client.** Turn
+construction, how to ask, pace and pressure, language register, punctuation and
+TTS, and the flow/tool/ending discipline. Lives in `docs/platform-rules.md` and is
+pasted in verbatim.
+
+**USE CASE — everything that varies.** Persona, the safety interrupts' actual
+content, the facts, the steps, the closures' actual lines, objections, capture.
+This is the only part a generator writes.
+
+The measured split for the healthcare bot: **1,527 tokens of platform rules, 2,689
+of use case.** Three consequences worth the restructure:
+
+- **The generator's job shrinks by a third.** It stops re-deriving turn
+  construction and punctuation for every client, which is where six rounds of
+  regressions came from — each rebuild re-litigated settled rules.
+- **The platform block is optimised once and every bot inherits it.** A rule proven
+  on the clinic line is live on the next bot without being rediscovered.
+- **A drift-harness finding lands in the right place.** Template monotony is a
+  platform bug; a wrong department is a use-case bug. Filing them separately is
+  what stops a client-specific fix from silently rewriting a global rule.
+
+The discipline that makes it work: **a use-case section may never restate or soften
+a platform rule.** If a client genuinely needs different behaviour, the platform
+rule changes for everyone or the requirement is refused — never quietly forked.
+
+Splitting also paid for itself in tokens: extracting the constant half exposed how
+much of it was duplicated across sections, and the same ruleset came out ~760
+tokens lighter.
+
+## 1a-xvi. The greeting belongs to the platform
+
+The platform plays the greeting from its own field, so **the prompt must never
+contain a greeting or an introduction**, and the first turn responds to something
+the caller has already said.
+
+Worth stating as a platform rule rather than a per-prompt note, because the
+temptation recurs: every round of "the opening is weak" invites writing a better
+opening line into the prompt, and a prompt-authored greeting either duplicates the
+platform's or contradicts it. What the prompt owns is turn one *after* the
+greeting, and that is a different problem — it reacts to the caller rather than
+framing the call.
+
+## 1a-xvii. Asking for their data is a request; asking about their problem is a question
+
+A politeness rule with a sharp boundary, which is what keeps it from turning into
+the over-warm register of §1a-ii.
+
+- Their **data** — name, who it is for, location, a number — is asked as
+  permission: "क्या मैं आपका नाम जान सकती हूँ?", never "आपका नाम क्या है?". You are asking
+  them to hand something over, so the frame is a request.
+- Their **problem** — what hurts, what they need, what happened — is asked
+  directly: "दर्द कहाँ हो रहा है?" needs no softening. Softening it is obsequious, and
+  it wastes the turn on courtesy the caller did not ask for.
+
+The generalisation for any language: a question that takes something from the
+customer is framed as a request for permission; a question that serves them is
+asked plainly. Getting this backwards is what produces both of the failure modes
+this project hit — brusque where it should be deferential, and cloying where it
+should be direct.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -914,3 +979,7 @@ Run before any prompt ships. This is the Auditor module's specification.
 54. Scope is named in the opener so an out-of-scope caller self-selects on turn one
 55. Internal taxonomy names are never spoken; every one has a customer-facing label
 56. A conditional offer ends in a full stop, never a question mark
+57. The prompt is split into platform rules and use case; the generator writes only the second
+58. No use-case section restates or softens a platform rule
+59. The prompt contains no greeting — the platform plays it
+60. Questions that take something from the customer are framed as requests; questions that serve them are direct
