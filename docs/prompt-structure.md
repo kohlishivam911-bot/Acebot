@@ -880,6 +880,90 @@ compliance, retention. The *contents* are entirely domain-specific. That is the
 generator's job in Phase 0: ask the three questions about the industry in front
 of it, not recycle a checklist.
 
+## 3a. Boundary requests — the fourth harm-model question
+
+Phase 0 asked three questions: what causes irreversible harm, what must never be
+asserted, where does one sentence lose the customer. A fourth belongs beside them,
+and it is the one that produced the headache-to-orthopaedics bug:
+
+> **What will callers ask for that sits just outside what we offer?**
+
+Every bot has a scope, and callers land next to it constantly. The failure is
+always the same shape — the model either **force-fits** (headache to Orthopaedics;
+"you wanted a Safari? the Hector is basically the same") or **improvises a
+refusal** and loses someone who was ready to buy. Both are one-sentence retention
+moments on rare-but-aggregate-frequent inputs, which is precisely the
+fixed-response test in §2. Boundary requests are a canonical fixed-response class.
+
+### Deriving them mechanically
+
+Do not brainstorm edge cases. **Enumerate the axes the bot qualifies on; each
+axis's complement is a boundary case.** The axes are visible in the flow — every
+step that narrows the caller down is an axis.
+
+**Healthcare, inbound appointments:**
+
+| Axis | In scope | Boundary request |
+|---|---|---|
+| Speciality | cardio, ortho, gastro | headache, skin, eye, ear, teeth, gynae, paediatric, mental health |
+| City | Gurgaon, Delhi | Noida, Ghaziabad, another state |
+| Named doctor | the six listed | "I want Dr Mehta" |
+| Doctor attribute | two are women | a woman doctor in the wrong city |
+| Service | consultation booking | reports, admission, surgery, ambulance, home visit, second opinion, a bill |
+| Payment | consultation fee | insurance, cashless, a discount |
+| Timing | free slots | "I need to be seen today" |
+
+**MG Motors, sales enquiry** — same method, nothing shared:
+
+| Axis | In scope | Boundary request |
+|---|---|---|
+| Brand and model | the MG range | **a Safari, a Creta, any non-MG model** |
+| Body type | what MG makes | a pickup, a convertible |
+| Fuel and transmission | MG's variants | diesel where MG offers none |
+| Budget | MG's price bands | "something under five lakh" |
+| Location | cities with a showroom | a town with no dealer |
+| Service | sales enquiry, test drive | servicing, spare parts, an insurance claim, resale valuation |
+| Timeline | the real waiting period | "I need delivery this week" |
+
+### Hard boundary or soft boundary
+
+The response shape depends on whether a legitimate substitute exists, and getting
+this wrong is what makes a bot either useless or pushy.
+
+**Hard boundary — no substitute is possible or it would be wrong to offer one.**
+A speciality the clinic does not have. Medical advice. Substituting is the bug, so
+the fixed statement is: name the limit plainly, say what happens instead, close.
+Never suggest the nearest department; a headache is not an orthopaedic problem at
+any strength of framing.
+
+**Soft boundary — a legitimate near-match exists.** A Safari is a seven-seat SUV
+and MG sells seven-seat SUVs. A woman doctor exists, in the other city. Nothing is
+free today, something is free tomorrow. The fixed statement acknowledges what they
+asked for, names the nearest real thing **once**, and accepts a no.
+
+The soft case is where pushiness lives, so it gets its own rule: **one sentence
+naming the alternative, then their decision.** Never explain why the alternative
+is better, never compare, and above all **never disparage what they asked for** —
+they named a competitor's product, not a mistake. "Safari is a good car, हमारे यहाँ
+seven-seater में Hector Plus है" is right; a paragraph on why MG beats Tata is not.
+
+### Cost is near zero if the closures already exist
+
+Most boundary cases do not need a new fixed line. They need a **trigger pointing at
+a closure that already exists** — the clinic's "not our department" and "the team
+will call you" lines absorb almost the whole table. The healthcare boundary block
+came to about 120 tokens because it is mostly routing, not new script. Enumerating
+boundaries is cheap; discovering them in production is not.
+
+### What the generator does
+
+1. Read the flow and list every step that narrows the caller — those are the axes.
+2. For each axis, write the complement.
+3. Classify each as hard or soft.
+4. Hard gets a plain limit plus an exit. Soft gets an acknowledgement plus one
+   named alternative plus acceptance of a no.
+5. Point each at an existing closure wherever one fits.
+
 ## 4. The section skeleton
 
 Order is load-bearing. Interrupts sit above the flow because they are checked
@@ -1045,3 +1129,7 @@ Run before any prompt ships. This is the Auditor module's specification.
 64. The scope list is spoken only in the rejection, never as a reply to an input
 65. A recurring register leak is investigated as a missing exit before a stronger ban
 66. The platform greeting follows the same language rules as the prompt
+67. Every axis the flow qualifies on has its complement enumerated as a boundary request
+68. Each boundary is classified hard or soft; soft names one alternative and accepts a no
+69. A competitor's product named by the caller is never disparaged and never claimed
+70. Boundary triggers point at existing closures rather than adding new lines
