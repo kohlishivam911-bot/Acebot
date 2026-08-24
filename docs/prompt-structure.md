@@ -224,6 +224,72 @@ knows.** The city alias list mostly restated that Gurugram is Gurgaon and Dwarka
 is in Delhi. What the model cannot know is that Noida, Ghaziabad and Faridabad
 have no clinic — so only that survived.
 
+## 1a-v. Punctuation is prosody, and the prompt's own formatting leaks into it
+
+Register decides the words; punctuation decides how they are *said*. TTS derives
+every pause and every intonation contour from the marks in the text, so
+punctuation is a spoken instruction and belongs in the output rules.
+
+The rules that matter, all engine-agnostic:
+
+- **Comma** = short breath. Two per sentence is the ceiling; three is choppy.
+- **Question mark** = rising tone. A question without one is read flat, as a
+  statement. In Hindi it must be `?`, never a danda.
+- **Danda / period** = long pause, falling tone. One per sentence, and never both
+  scripts' marks in one sentence.
+- **Ban outright from spoken text:** em dash, en dash, ellipsis, semicolon, colon,
+  brackets, quote marks, asterisk, slash, hyphen. Engines read some aloud and
+  pause unpredictably on the rest. The replacement rule is what makes this
+  usable: *want a pause? comma. want a break? danda.*
+- **Digit strings said singly** are separated by spaces, never hyphens.
+
+### Examples teach harder than rules
+
+Auditing our own prompt found an em dash inside a spoken line and — worse — an em
+dash inside an *example of good output*. An example that violates a rule stated
+elsewhere wins, because it is concrete and the rule is abstract. So: **every
+example in a prompt is training data for the output.** Sweep the examples against
+every rule, not just the prose.
+
+### The prompt's line-wrapping leaks into speech
+
+The sharpest finding of this pass. Thirteen of the prompt's verbatim spoken lines
+were wrapped across source lines at 80 columns, purely because that is how the
+file was written. A newline inside a spoken line is a real hazard: the model may
+reproduce the break, and some engines treat it as a sentence boundary and insert a
+pause mid-clause. Wrapping had also produced a double space inside one line.
+
+**Rule: a verbatim spoken line occupies exactly one source line, however long.**
+Readability of the prompt file loses to fidelity of the audio. This is now a
+mechanical check — it is trivial to detect and impossible to notice by eye.
+
+### Orthography, restated as prosody
+
+The nukta and hyphen rules from §1a-iii belong in this same block rather than with
+spelling: `एक-एक-दो` is not a spelling problem, it is a pause problem, and it was
+sitting in the emergency line.
+
+## 1a-vi. Prompt length is prefill, not decode
+
+Worth stating because it changes what the token ceiling is *for*, and three
+rounds of calibration have now been paid for out of it.
+
+Per-turn voice latency is dominated by time-to-first-token and by how many tokens
+the model **generates**. The system prompt is prefill — processed once per turn,
+in parallel, and on most platforms cached across turns. Going from 4,000 to 4,250
+prompt tokens is a small prefill cost and, with caching, close to nothing.
+Generating three sentences instead of one is what the caller actually waits for.
+
+The instruction-based architecture already won the large prize: outputs are short
+because nothing is scripted, and there is no multilingual dialogue to carry. That
+is where the latency saving lives.
+
+So treat the ceiling as a real budget but not a sacred one, and **never trade a
+safety rule for the last few percent of it**. When the two collide the order is:
+measure with the real tokeniser first, then move facts to retrieval (§4a), then
+ask whether the ceiling itself is the right number. Cutting an interrupt is not on
+the list.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -515,3 +581,7 @@ Run before any prompt ships. This is the Auditor module's specification.
 30. Code-mixing specified: target-language grammar, no English function words inside it
 31. Orthography TTS-checked: common spellings, nukta only where needed, no hyphenated digits
 32. No tokens spent on facts the base model already knows
+33. Punctuation rules stated: comma, question mark, danda, and the banned marks
+34. Every verbatim spoken line occupies exactly one source line
+35. Every example obeys every rule — examples teach harder than prose
+36. No spoken line contains a dash, ellipsis, bracket, colon or double space
