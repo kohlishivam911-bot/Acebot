@@ -142,6 +142,88 @@ you did not catch it, say so; never claim comprehension you do not have.
 is the clearest possible tell that nobody is listening. Second ask is shorter and
 differently worded.
 
+## 1a-iii. Fluency: a two-part turn invites two-part output
+
+Tone landed with §1a-ii; fluency did not, and the cause is the same structure.
+
+Prescribing "acknowledge, then ask" tells the model to emit two things, so it
+emits two *chunks*: `अच्छा। दर्द कहाँ हो रहा है?` — grammatical, tonally correct, and
+audibly a machine reading a form. The slot fixed the coldness and created
+staccato.
+
+**A structural instruction must say how the parts join, not only that they exist.**
+
+- stitched, wrong: `अच्छा। दर्द कहाँ हो रहा है?`
+- joined, right: `अच्छा, तो ये दर्द कहाँ हो रहा है?`
+
+Comma and a connector, never a full stop and a fresh start. One utterance per
+turn.
+
+### A filler cap can strip the grammar
+
+"One filler word per turn" reads, to a model, as a budget on all the small words
+— including तो, फिर, और, बस, ना. Those are **connectors**, not fillers: they hold a
+Hindi sentence together, and without them output reads as translated English.
+
+So the cap needs an explicit exemption: *connectors are not fillers; the
+one-filler rule does not apply to them; use them.* Generalises to any language
+with discourse particles — and it is the second time in this project that a cap
+has silently deleted something it was never aimed at (§1a).
+
+### Code-mixing has to be specified
+
+A Hinglish bot has three ways to say one thing and only one is fluent:
+
+| | |
+|---|---|
+| `appointment करा देती हूँ` | fluent — English noun, Hindi grammar |
+| `नियुक्ति करा देती हूँ` | wrong — translating a word nobody translates |
+| `appointment make कर देती हूँ` | wrong — English function word inside Hindi |
+
+Rule: the English noun where a speaker would naturally use one, Hindi grammar
+around it, and no English function words inside a Hindi sentence. Plus the
+compound verbs speech actually uses — करा देती हूँ, बता दीजिए — over the formal
+simple future करवाऊँगी.
+
+### Orthography is a fluency setting, not a spelling preference
+
+Bob: *"A single wrong character will mangle the TTS pronunciation. If unsure, use
+the simpler/more common spelling that TTS engines handle well."*
+
+Two concrete rules that came out of auditing our own fixed lines:
+
+- **Nukta discipline.** Use the plain letter where the plain spelling is the
+  common one — जरूरत not ज़रूरत, फोन not फ़ोन, सिर्फ not सिर्फ़ — but keep the nukta
+  where the word genuinely needs it, since ड़ is a distinct sound: धड़कन, पड़ेगा.
+  Verify against the actual engine; commonness is a good prior, not a guarantee.
+- **Never hyphenate spoken digits.** `एक-एक-दो` risks being read as a dash or an
+  odd pause. Write `एक एक दो`. This was sitting in the emergency line — the single
+  most safety-critical utterance in the prompt.
+
+Both belong in the generator's output rules for any Indic-script bot, not in a
+per-prompt review.
+
+## 1a-iv. When quality rules and facts stop fitting
+
+Worth recording as a project fact rather than a per-prompt problem. Across three
+calibration rounds the healthcare prompt's delivery rules grew from nothing to
+roughly a quarter of the budget, and the facts did not shrink. At that point
+something has to leave the prompt, and the choice is not free-form:
+
+**Delivery rules have no retrieval path; facts do.** So facts move and rules stay
+— filtered by §4a, which keeps anything routing-critical in the prompt because a
+70% retriever cannot carry a gate.
+
+One move paid for itself twice over: **speak the clinic area, not the street
+address, and send the address by SMS.** It is cheaper in tokens and it is better
+call design, because nobody memorises a street address over the phone. Look for
+that shape — a cut that improves the call — before cutting a rule.
+
+A related trim rule: **do not spend tokens on facts the base model already
+knows.** The city alias list mostly restated that Gurugram is Gurgaon and Dwarka
+is in Delhi. What the model cannot know is that Noida, Ghaziabad and Faridabad
+have no clinic — so only that survived.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -428,3 +510,8 @@ Run before any prompt ships. This is the Auditor module's specification.
 25. Empathy is budgeted per call, not per turn
 26. Unclear input re-asks the current step; never advances, never claims comprehension
 27. No re-ask uses the same words twice
+28. Structural instructions say how the parts JOIN, not only that they exist
+29. Filler caps explicitly exempt connectors and discourse particles
+30. Code-mixing specified: target-language grammar, no English function words inside it
+31. Orthography TTS-checked: common spellings, nukta only where needed, no hyphenated digits
+32. No tokens spent on facts the base model already knows
