@@ -33,6 +33,129 @@ That is backwards twice over:
 So spend the fixed-response budget where frequency is low and cost of error is
 high. Let instructions carry everything else.
 
+## 1a. Restriction-only contracts produce cold output
+
+The most important lesson so far, and it came from a live call going wrong.
+
+The v1 prompt's contract was purely restrictive: *one question per turn, your turn
+ends at the first question mark, maximum two sentences.* Elsewhere it said
+"acknowledge briefly, then advance" and "empathy through acknowledgement".
+
+On a real call the bot produced this, on a hospital line, to a caller in pain:
+
+> आपको क्या परेशानी हो रही है?
+> ये दर्द शरीर के किस हिस्से में हो रहा है?
+> क्या आपको इसके साथ बुखार या कोई और लक्षण भी है?
+
+Three questions, no warmth, textbook Hindi. Every restriction was obeyed
+perfectly.
+
+**Given only restrictions, a model satisfies them by doing the least.** It emits
+one sentence, and that sentence is the question, because the question is the part
+the flow demands. The acknowledgement had no reserved slot, so the sentence cap
+ate it — on every single turn.
+
+The fix is to make warmth **structural rather than aspirational**: prescribe the
+shape of a turn, do not merely bound it.
+
+    EVERY TURN HAS TWO PARTS, IN THIS ORDER
+    1. REACT — one short human response to what they just said, never a
+       stock phrase, never the same one twice in a call.
+    2. THEN one question, or one piece of information. Never two.
+    The reaction is required, not decoration.
+
+Rule for the generator: **for every quality you want, there must be a slot that
+carries it.** A cap without a slot deletes the quality. This applies well beyond
+warmth — brevity, acknowledgement, urgency, and disclosure all behave the same
+way.
+
+## 1b. Register is an instruction, not something scripts carried
+
+The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
+to someone frightened. The prompt's only language rule was "Hindi in Devanagari",
+so the model defaulted to formal register, which is what written Hindi corpora are
+made of.
+
+Fixed responses used to hide this problem: if every line is scripted, register is
+whatever the author typed. Remove the scripts and register becomes a first-class
+instruction — and it needs three parts:
+
+**A testable heuristic.** *If a word belongs in a newspaper but not in a phone
+call between two people, do not use it.* One line, and it generalises to any
+language and any domain.
+
+**An explicit ban list.** Heuristics alone lose to the model's prior. Name the
+words: परेशानी, लक्षण, समस्या, कष्ट, पीड़ा, असुविधा, चिकित्सा, उपचार, निदान, अवगत, कृपया,
+धैर्य — with the warm replacements beside them.
+
+**The small words of real speech.** जी, हाँ जी, अच्छा, अरे, ओह, देखिए, सुनिए, चलिए,
+कोई बात नहीं. Plus the fragment-versus-person contrast, because a model told to be
+brief will produce form fields:
+
+- form field — "दर्द कहाँ हो रहा है?"
+- person — "अच्छा, ये दर्द कहाँ हो रहा है — कमर में, घुटने में?"
+
+## 1c. Caller state, derived from the use case
+
+Before tone rules can be written, answer one question: **what state is the person
+in when they pick up?** It is set by the business, and it decides everything about
+delivery.
+
+| Use case | Caller arrives | Delivery that follows |
+|---|---|---|
+| Healthcare inbound | Worried, in pain, sometimes frightened for someone else | Warmth first, never rush, never clinical, never a checklist |
+| Automotive service | Inconvenienced, cost-anxious, mildly annoyed | Brisk competence, respect their time, reassure on cost |
+| Collections | Defensive, possibly ashamed | Non-judgemental, firm, never moralising |
+| Outbound sales | Interrupted, sceptical | Earn the next ten seconds, brevity over warmth |
+
+Healthcare and automotive both want "professional and friendly" and mean opposite
+things by it. Warmth that reads as care on a hospital line reads as time-wasting
+on a service booking. This is what "read the use case" has to mean concretely — it
+is a lookup that produces the tone section, not a vibe.
+
+## 1d. Fix the turns that have no input to adapt to
+
+A refinement of §1. Generation earns its keep by adapting to what the caller just
+said. **The opening turn has nothing to adapt to** — it is identical on every call
+regardless of who is ringing. So generation there adds variance with no upside,
+which is exactly how a hospital line ends up opening with "आपको क्या परेशानी हो रही है?"
+
+So the opener joins the fixed set, despite being the most frequent line in the
+system and therefore an apparent violation of "fix the rare". The underlying test
+was never frequency for its own sake — it is whether there is caller input worth
+adapting to. No input, no reason to generate.
+
+## 1e. Two-tier interrupts for ambiguous safety signals
+
+On that same call the emergency fired on "वो हार्ड है बहुत ज़्यादा" — mangled speech
+that might have been "heart", might have been "hard". Firing was the safe call and
+I would keep it. But a single-tier interrupt forces a binary on evidence that is
+often not binary, and a false fire on a routine caller is its own damage.
+
+So safety interrupts get two tiers:
+
+- **Tier A — unambiguous.** Named red flags, stated plainly. Fire immediately.
+- **Tier B — present but unclear.** Vague severity, no location, a garbled word
+  that could be a red flag. **One** gentle scripted check, then Tier A or back to
+  the flow. Asked at most once per call.
+
+Tier B is a fixed line too, since it runs at the same stakes as Tier A.
+
+## 1f. State the purpose of a probe, or the model invents one
+
+The bot asked for a body part, then for fever and other symptoms. The prompt said
+"probe once"; it probed twice, and the second question was clinical triage — the
+model drifting toward assessment on a prompt that forbids medical advice.
+
+"Probe once" bounds the count and says nothing about the purpose, so the model
+supplies a purpose, and the obvious one for a health call is diagnosis. Name the
+purpose instead: **you are routing to a department, not assessing a patient. One
+question, only to find the body area or kind of problem. Never ask about fever,
+duration, severity out of ten, or medicines taken.** Naming what not to ask is
+what actually holds, because those are precisely the questions the model reaches
+for next.
+
+
 ## 2. The fixed-response test
 
 A line is FIXED if any of these hold. Otherwise it is an instruction.
@@ -177,6 +300,13 @@ inflects; v0 said nothing, so the bot flips between करती and करत�
 confirm back what was just said" fought four separate instructions to acknowledge,
 mirror, and confirm slots. State the exception where the rule is stated.
 
+**Warmth has a slot, not just a cap.** Restrictions alone produce a bot that
+answers in bare questions. Every turn carries a required REACT before the ask. §1a
+**Register is named, not implied.** The newspaper test, an explicit ban list, and
+the small words of real speech. §1b
+**A probe states its purpose.** Otherwise the model picks one, and on a health
+call it picks diagnosis. §1f
+
 ## 6. Disclosure
 
 v0's guardrail: *if asked whether you are an AI or bot, do not confirm or deny;
@@ -215,3 +345,8 @@ Run before any prompt ships. This is the Auditor module's specification.
 15. Every Phase 0 harm item has an interrupt, verbatim, with an exit
 16. Fixed lines carry the anti-improvement clause
 17. Section budgets respected; measured with the real tokeniser, not estimated
+18. Every quality the brief asks for has a slot that carries it, not just a cap
+19. Register named explicitly: heuristic, ban list, and real-speech words
+20. Every probe states its purpose and what it must not ask
+21. Safety interrupts that can fire on unclear evidence have a Tier B check
+22. Any turn with no caller input to adapt to is fixed, not generated
