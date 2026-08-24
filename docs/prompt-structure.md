@@ -664,6 +664,62 @@ asked plainly. Getting this backwards is what produces both of the failure modes
 this project hit — brusque where it should be deferential, and cloying where it
 should be direct.
 
+## 1a-xviii. Every classifier needs an explicit reject path
+
+A headache reached an orthopaedic doctor. The cause was a deleted rule, and the
+deletion is as instructive as the bug.
+
+v3 said *"fits none of the three, closure E3. Never guess a department, never
+stretch a symptom to fit one."* The consolidation pass that produced v8 compressed
+that paragraph and kept only the multi-site case. Nothing flagged it, because a
+missing rule is invisible in a prompt — it reads perfectly well without the line
+that is not there.
+
+So a headache matched no routing list, and the model had no exit. What it did next
+is worth studying, because it is what any model does when a classifier has no
+reject path:
+
+1. **Recited the whole scope list as if it were an answer** — "सिर में दर्द के लिए हमारे
+   यहाँ पेट, दिल और हड्डी के doctor बैठते हैं", answering a complaint with a menu.
+2. **Probed twice, hunting for a way in** — "is the pain anywhere else as well?" —
+   which is not a diagnostic question, it is a search for a mappable symptom.
+3. **Force-fitted to the nearest department.** Headache to Orthopaedics.
+
+None of that is a language failure. It is a model doing the only thing available
+when every path out of a step requires a match and no match exists.
+
+**Rules for any prompt that routes on a classification:**
+
+- **State the reject path as prominently as the matches**, not inside an ambiguity
+  paragraph. "Not in the lists" is a first-class outcome with its own exit.
+- **Name the common rejects explicitly.** Reasoning about absence is harder than
+  matching presence, and the highest-frequency out-of-scope input — here, headache
+  on a healthcare line — deserves naming. This is the closed-list principle from
+  §1a-vii: exhaustive lists are for what to avoid.
+- **A probe may only disambiguate between valid classes, never search for
+  membership.** "Which of the three is it" is legitimate; "is it also somewhere
+  that would qualify" is the model negotiating with the gate.
+- **The scope list is spoken only in the rejection**, never as a reply to an input.
+
+### Register leaks are a symptom of a flow gap
+
+Both banned phrases — "माफ़ कीजिए" and "क्या आप बता सकते हैं कि" — leaked in this same
+call, having held in the previous one. They are the model's default assistant
+register, so they surface exactly when it is off-script and improvising.
+
+That reframes register bans: they are a backstop, not the fix. **The fix is to
+close the gap that put the model off-script**, because a model executing a defined
+path does not reach for its defaults. When a banned phrase reappears, look first
+for the missing exit, not for a stronger ban.
+
+### And a note on the greeting
+
+The platform greeting is in the conversation history, so the model mirrors its
+register. The greeting used in this call — "kya aap bata sakte aapko kis cheez ki
+medical requirement hai?" — is the same form-letter construction the prompt bans,
+which primes the bot toward it. **The greeting has to follow the same language
+rules as the prompt**, or it undoes them from turn zero.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -983,3 +1039,9 @@ Run before any prompt ships. This is the Auditor module's specification.
 58. No use-case section restates or softens a platform rule
 59. The prompt contains no greeting — the platform plays it
 60. Questions that take something from the customer are framed as requests; questions that serve them are direct
+61. Every classification that gates the flow has an explicit, prominent reject path
+62. The highest-frequency out-of-scope inputs are named, not left to reasoning about absence
+63. A probe may disambiguate between valid classes, never search for membership
+64. The scope list is spoken only in the rejection, never as a reply to an input
+65. A recurring register leak is investigated as a missing exit before a stronger ban
+66. The platform greeting follows the same language rules as the prompt
