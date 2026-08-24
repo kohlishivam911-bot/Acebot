@@ -559,6 +559,46 @@ the measurement.** Prompt length is a symptom here, not the disease — the prom
 is long because it accumulated fifteen point-fixes that were never consolidated
 against each other, and consolidation needs a test suite to be safe.
 
+## 1a-xiv. The opening turn: greeting, context, closed question
+
+An opener has three jobs and most bots do only the first. The pattern, from an
+automotive brief that solved it well:
+
+> greeting · "you had shown interest in MG Motors" · "are you looking to buy a car?"
+
+**Greeting** establishes who is speaking. **Context** gives the caller a reason
+this conversation makes sense — for outbound, their prior action; for inbound,
+what this place actually does. **A closed question** qualifies why they are on the
+call, without asking for any commitment.
+
+The failure mode it replaces is the unframed offer of help — "how may I help you",
+"मैं आपकी क्या मदद कर सकती हूँ" — which puts the work of framing the call onto
+someone who may not know what the number does.
+
+Inbound needs the context element rebuilt, since there is no prior action to
+reference. What this business treats or sells is the natural substitute, and it
+does a second job: **naming the scope lets an out-of-scope caller say so on turn
+one** rather than after five qualifying questions. For the clinic that is "हमारे
+यहाँ दिल, हड्डी और पेट की दिक्कतों के doctor बैठते हैं" — the three departments, in
+patient words.
+
+Note the closed question is not pushing (§1a-xii). "आपको किसी doctor को दिखाना है?"
+qualifies intent; "क्या मैं appointment करा दूँ?" requests a commitment. Qualifying
+intent in the opener is correct; asking for the commitment there is not.
+
+### Two register rules from the same call
+
+**Say the speciality the way a customer says it, never the internal name.** The bot
+said "gastroenterology doctor" to a patient. Domain taxonomies — departments, SKUs,
+product codes, tiers — exist for routing; a customer hears them as jargon. Any
+prompt carrying an internal classification needs the customer-facing label beside
+it and a rule that only the label is ever spoken.
+
+**A conditional offer is a statement and takes no question mark.** "आप कहें तो मैं
+time देख लेती हूँ?" is malformed, and the prosody consequence is worse than the
+grammar: TTS reads the rising tone as uncertainty, so a confident offer arrives
+sounding unsure. The pause after a statement is the handoff.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -870,3 +910,7 @@ Run before any prompt ships. This is the Auditor module's specification.
 50. The goal is not named before the caller has received something of value
 51. The ask offers rather than requests, and is made once
 52. Count the turns mentioning the goal before value is delivered — more than zero is pushing
+53. The opener does greeting, context, and a closed intent question — never an unframed offer of help
+54. Scope is named in the opener so an out-of-scope caller self-selects on turn one
+55. Internal taxonomy names are never spoken; every one has a customer-facing label
+56. A conditional offer ends in a full stop, never a question mark
