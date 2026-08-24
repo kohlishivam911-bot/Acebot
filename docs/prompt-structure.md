@@ -414,6 +414,79 @@ That framing turns "cut 400 tokens" from a vague squeeze into a priced menu — 
 block costs 241, that one 210 — and the choice of what to drop belongs to whoever
 owns the risk, not to whoever is writing the prompt.
 
+## 1a-xi. Specify content, not shape
+
+The most important lesson in this document. It explains every conversational
+failure the project has had, and it came from one call where half the turns were
+good and half were terrible.
+
+The good half and the bad half had differently-written instructions.
+
+**Step 6 — a content spec.** *"The doctor's name with years of experience; then the
+clinic area and the consultation fee; then ask which day suits."* Output:
+
+> Doctor Nikhilesh Singh के पास twenty-one years का experience है। Paschim Vihar
+> clinic में उनकी consultation fee six hundred fifty rupees है, तो बताइए किस दिन
+> appointment कर दूँ?
+
+Natural, informative, varied. **Step 2 — a shape spec.** *"Reflect what they said
+in a few words, then say seeing the right doctor is the next step."* Output:
+
+> पूरे शरीर में, समझ गई। ये दर्द कहाँ हो रहा है, घुटने में, कमर में, या पेट में?
+> बाइसेप्स में दर्द, समझ गई। सही doctor से मिलना ही सबसे अच्छा रहेगा।
+
+The shape was followed exactly, three turns running, as a template.
+
+**A shape spec describes the form of the sentence. A content spec describes the
+facts the sentence must carry.** Given a shape, the model fills the slots
+mechanically and the same skeleton recurs. Given content, it has to build a
+sentence to hold the facts, and the sentence varies because the facts do.
+
+Look at what each one leaves the model to decide. Content spec: the wording — which
+is what language models are good at. Shape spec: the *substance* — which is what
+they will fill with a stock phrase, because the instruction did not say what the
+substance was.
+
+Bob's steps are all content specs. Every one names what to say — the fee, the
+qualifier, the branch — never how to shape the saying of it. That is why they read
+naturally despite being scripted.
+
+### The corollaries
+
+**"Acknowledge" is a shape spec and cannot be fixed by tuning it.** Three rounds
+went into it: a slot, then a word cap, then a preferred variant, then a ban on
+repeating the word. Each fix produced a new template. The instruction was
+unfixable, because acknowledgement is a *form*. Deleting it and stating what the
+turn must contain fixed it in one pass: if the sentence uses what they told you,
+they know you were listening, and nothing needs to announce it.
+
+**Ban the formula, quoting the real output.** Where a shape has already fossilised
+in production, name it and paste the actual bad turn into the prompt. Abstract
+instructions not to be repetitive do nothing; the specific string does.
+
+**A generic bridge is the tell.** "सही doctor से मिलना अच्छा रहेगा" — a sentence that
+would fit any bot, any caller, any complaint — means the instruction asked for a
+transition rather than for information. Replace it with the fact that belongs
+there: which specialist, and why theirs.
+
+**Audit for this by reading the outputs, not the prompt.** A shape spec looks
+perfectly reasonable in the prompt. It is only visible in the transcript, as the
+same skeleton three turns apart. So the review question is not "is this
+instruction clear" but "what is the one sentence this instruction will produce
+every time — and would three of those in a row be acceptable?"
+
+### Two more from the same call
+
+**Every step needs a two-attempt ceiling and a default.** Step 4 asked "who is the
+appointment for" four times in four wordings, because the step said what to ask and
+never what to do on failure. Any step that can fail needs a stated default — here,
+assume the caller — or the model loops until the human hangs up.
+
+**A caller's question outranks the step.** The caller asked where the doctor was
+and was asked for a name instead. The flow said what to collect and never that an
+inbound question is answered first. Any prompt that drives a collection sequence
+needs this rule, or it interrogates.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -717,3 +790,8 @@ Run before any prompt ships. This is the Auditor module's specification.
 42. New rules go into the section that already owns the topic; new sections are a last resort
 43. Budget overshoot is reported by cause, as a priced menu, not as a percentage
 44. The intersection of the rules is audited, not just each rule on its own
+45. Every step instruction is a CONTENT spec, never a shape spec
+46. For each instruction: what single sentence will it produce every time, and are three in a row acceptable?
+47. No generic transition sentence that would fit any bot — name the fact instead
+48. Every step that can fail states a two-attempt ceiling and a default
+49. An inbound question is answered before the step continues
