@@ -720,6 +720,58 @@ medical requirement hai?" — is the same form-letter construction the prompt ba
 which primes the bot toward it. **The greeting has to follow the same language
 rules as the prompt**, or it undoes them from turn zero.
 
+## 1a-xix. Trust is specific; the ask must come after the specifics, not after the category
+
+v9.1 asked to book two turns after learning the department, and three turns before
+naming the doctor. Every individual rule was satisfied — the department was
+settled, the ask offered rather than requested, one ask only — and the sequence
+was still wrong, because "earn the ask" (§1a-xii) had been satisfied at the wrong
+resolution.
+
+**"We have that kind of doctor" is a category. "Doctor Bhagat Singh Rajput, thirty
+years" is a specific.** A caller does not commit to a category; nothing to trust
+yet exists at that resolution. They commit to a specific, once they know who,
+where, and what it costs. So earning the ask means presenting the specifics before
+raising the goal, not merely establishing that a category match exists.
+
+**Rule: the last content turn before an ask names the specific instance, never the
+class it belongs to.** For any prompt: find the ask, walk backward to the nearest
+turn that presents information, and check it names an instance rather than a
+category. If the specific instance is not knowable that early in the flow — a
+price that depends on a later choice, an appointment slot that depends on the
+day — the ask must wait for the step that produces it, even if an earlier step
+looks like a natural place to offer.
+
+This generalises past healthcare directly. A sales bot must name the actual model
+and its price before asking to book a test drive, not "we have SUVs in that
+segment." A support bot must state the actual fix before asking to close the
+ticket, not "that's a known issue."
+
+## 1a-xx. A closure's shape depends on the news, not on whether the call succeeded
+
+Every rejection closure ended on the same breath as the bad news — "there is no
+doctor for that here, thank you for calling" — while the booked closure alone got
+a second turn to ask if anything else was needed. Good news got a conversation;
+bad news got a door shut. Politely worded, and still rude, because **rudeness here
+is a structural property of the turn count, not of the words in it.**
+
+**Rule: every closure that is not an emergency, an ending after abuse, or a dead
+line is two turns, regardless of outcome.** First turn: what is happening and why.
+Ask if there is anything else, and wait — genuinely wait, not rhetorically, because
+sometimes the answer reopens the flow. Second turn, once they say no: the farewell,
+then hangup.
+
+The three exceptions are not carve-outs invented for this rule; they are cases
+that already have their own reason to end fast — an emergency where every extra
+second matters, an abusive caller who has forfeited the courtesy, a line that may
+already be dead. Everything else, success or refusal, gets the same shape. A
+prompt author's instinct is to write the happy path generously and the refusal
+tersely, because the refusal feels like it should be over quickly; that instinct
+is backwards, and it is exactly what produced this bug.
+
+This is a platform rule, not a use-case one — no bot on any use case should hang
+up on a refusal in the same breath that delivers it.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -1138,3 +1190,7 @@ Run before any prompt ships. This is the Auditor module's specification.
 68. Each boundary is classified hard or soft; soft names one alternative and accepts a no
 69. A competitor's product named by the caller is never disparaged and never claimed
 70. Boundary triggers point at existing closures rather than adding new lines
+71. The turn just before an ask names a specific instance, never a category
+72. If the specific is not knowable yet, the ask waits for the step that produces it
+73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome
+74. A refusal never ends the call in the same breath that delivers it
