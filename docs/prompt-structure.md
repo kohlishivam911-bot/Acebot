@@ -69,6 +69,79 @@ carries it.** A cap without a slot deletes the quality. This applies well beyond
 warmth — brevity, acknowledgement, urgency, and disclosure all behave the same
 way.
 
+## 1a-ii. A slot needs a cap, and a cap needs a slot
+
+The turn-shape fix in §1a over-corrected on its first live call, in the exact
+mirror image of the fault it fixed.
+
+§1a added a REACT slot but never bounded it. So the model inflated it: `ओह` became
+`ओह, ये तो बहुत बुरा लग रहा है` — a full sympathy sentence, on a routine turn — and
+fillers stacked three deep, `अच्छा सुनिए, एक चीज़ बता दीजिए` before the actual
+question. A bot that gushes is as wrong as one that interrogates, and on an AI
+voice it reads worse, because effusive sympathy from a machine is uncanny rather
+than kind.
+
+| | Fault | Result |
+|---|---|---|
+| v1 | Caps with no slot | Quality deleted — three bare questions |
+| v2 | Slot with no cap | Quality inflated — sympathy sentences, stacked fillers |
+| v3 | Both, plus a third option | Calibrated |
+
+**Rule: specify both bounds or the model finds an extreme.** Every slot gets a
+hard ceiling in words, not an adjective. "One short human response" is not a
+specification; "at most two words, or a two-to-four word reference to what they
+said" is.
+
+### The third option, from Bob
+
+The deeper error was offering only two choices — say nothing, or emote. Bob's
+`BALANCED TONE` block has the answer, and it is neither:
+
+> Instead of repeating "Got it" — react to what they said. If they said budget is
+> 2 crores, say "2 crores, that lines up well with what we have."
+
+That is a **content reference**: it proves you listened without spending a
+sentence on feelings. Not a filler, not sympathy, and not a verification repeat
+either. Given only filler-or-emotion, a model picks emotion on an emotional call.
+Given the content reference as the preferred option, it picks that.
+
+So the acknowledgement slot offers three, ranked: a content reference when they
+gave real information; one filler word when they did not; nothing at all when you
+are answering a plain factual question, because padding a fact is what sounds
+fake.
+
+### Budget the empathy per call, not per turn
+
+Bob again: *"one empathetic line is enough, then get to the point"* and *"don't
+over-explain or over-empathize"*. Per-turn guidance cannot enforce that — every
+individual turn looks defensible while the call as a whole drowns. So it becomes
+a call-level allowance:
+
+**At most ONE empathetic line in the whole call**, only at real distress or when
+turning someone away, then straight back to the point.
+
+Also worth banning outright, since Bob names them and Hindi has direct
+equivalents: excited words. No "बहुत अच्छा!", no "शानदार!" — Bob's
+"Great!/Perfect!/Awesome!" list.
+
+### Three bugs the same call exposed
+
+Each is a general rule, not a healthcare one.
+
+**Garbled input must not invent a step.** Given the single word "नाम", the bot
+asked for the caller's name — at the concern-gathering step, before any name was
+needed. Unintelligible input has to re-ask the *current* step in fewer words,
+never advance and never start collecting something else.
+
+**Never claim to have understood.** On pure STT garbage the bot said "अच्छा, मैं समझ
+गई" and carried on. A model asked to acknowledge every turn will acknowledge
+nonsense too, because the instruction did not except it. State it explicitly: if
+you did not catch it, say so; never claim comprehension you do not have.
+
+**Never re-ask in identical words.** The bot repeated a question verbatim, which
+is the clearest possible tell that nobody is listening. Second ask is shorter and
+differently worded.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -350,3 +423,8 @@ Run before any prompt ships. This is the Auditor module's specification.
 20. Every probe states its purpose and what it must not ask
 21. Safety interrupts that can fire on unclear evidence have a Tier B check
 22. Any turn with no caller input to adapt to is fixed, not generated
+23. Every slot has a hard word ceiling, not an adjective
+24. Acknowledgement offers a content reference, not just filler-or-emotion
+25. Empathy is budgeted per call, not per turn
+26. Unclear input re-asks the current step; never advances, never claims comprehension
+27. No re-ask uses the same words twice
