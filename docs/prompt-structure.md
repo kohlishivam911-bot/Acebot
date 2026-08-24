@@ -363,6 +363,57 @@ This generalises: price lists, branch addresses, service catalogues, eligibility
 tables, opening hours. Anything the flow can key into should leave the prompt as a
 tool, not as an embedding.
 
+## 1a-ix. Keep the reference's structure; fix inside it
+
+A process failure worth recording, because it cost a whole revision.
+
+Given a working prompt to improve, I rebuilt it in a taxonomy of my own —
+DELIVERY, PRIORITY INTERRUPTS, EXITS, steps as S1–S8 with routing tables. Every
+individual change was defensible and the result was a different prompt, not an
+improved one. The author had to send me back.
+
+Bob states the rule and I ignored it:
+
+> Treat the reference prompt as your TEMPLATE. Go through it SECTION BY SECTION.
+> Keep the same structure, flow, and format. **DO NOT change anything unless
+> there is a reason to change it.** — `BUILD_SYS`
+
+So: **new rules go into the section that already owns that topic.** Turn shape and
+warmth belong in the client's `## Tone`. Register, script and punctuation belong in
+their `## Pronunciation Guide`. Inventing a section is a last resort, justified only
+when the topic genuinely has no home — for this prompt, exactly once, for the
+safety interrupts, which had no equivalent at all.
+
+Two practical notes. Prose costs more per rule than a table, so honouring a
+prose house style is a real budget decision, not a free stylistic choice — the same
+ruleset came out ~400 tokens heavier in the client's register than in my own. And a
+reference prompt's own redundancies are inherited along with its structure: the
+original had overlapping guardrail lists, so deduplicating them is part of the fix,
+not a departure from the template.
+
+## 1a-x. Account for growth by cause, not by section
+
+When a rebuilt prompt overshoots its budget, the useful report is not "it is 60%
+bigger" but which category of fix bought which tokens. For the healthcare prompt,
+against the original's 2,612:
+
+| Cause | Tokens |
+|---|---|
+| Language and delivery quality (Tone + Pronunciation) | +929 |
+| Safety interrupts that did not exist | +492 |
+| Routing correctness (real symptom map, ambiguity rules) | +363 |
+| Persona precision (caller state, gendered verb forms) | +140 |
+| Conversation flow — 12 leakages fixed | **-20** |
+
+The flow was the most defective section and cost nothing to repair: dead date
+rules removed, gates added, a turn split, tool-gating added, all inside its
+original budget. Every token of growth went to language quality the author asked
+for over three rounds, and to a safety layer that was simply absent.
+
+That framing turns "cut 400 tokens" from a vague squeeze into a priced menu — this
+block costs 241, that one 210 — and the choice of what to drop belongs to whoever
+owns the risk, not to whoever is writing the prompt.
+
 ## 1b. Register is an instruction, not something scripts carried
 
 The same call produced परेशानी, लक्षण and समस्या — newspaper Hindi, on a phone call,
@@ -663,3 +714,6 @@ Run before any prompt ships. This is the Auditor module's specification.
 39. No rule is stated as always or never where "use it, vary it" is the real intent
 40. The actual observed failure is quoted into the prompt as a negative example
 41. Structured, keyed facts are a tool call before they are a retrieval question
+42. New rules go into the section that already owns the topic; new sections are a last resort
+43. Budget overshoot is reported by cause, as a priced menu, not as a percentage
+44. The intersection of the rules is audited, not just each rule on its own
