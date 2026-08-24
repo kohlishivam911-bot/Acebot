@@ -951,9 +951,14 @@ seven-seater में Hector Plus है" is right; a paragraph on why MG beats
 
 Most boundary cases do not need a new fixed line. They need a **trigger pointing at
 a closure that already exists** — the clinic's "not our department" and "the team
-will call you" lines absorb almost the whole table. The healthcare boundary block
-came to about 120 tokens because it is mostly routing, not new script. Enumerating
-boundaries is cheap; discovering them in production is not.
+will call you" lines absorb almost the whole table, so nothing new had to be
+scripted.
+
+Measured, not estimated: the healthcare boundary block came to **269 tokens** for
+seven cases, about 38 each. I had guessed 120, which was wrong by more than
+double — the triggers are free but the "handle it once, then the exit" wording
+around each one is not. Budget roughly 40 tokens per boundary case and count the
+axes before promising the space.
 
 ### What the generator does
 
