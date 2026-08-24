@@ -15,6 +15,20 @@ nearly 3× the budget of the bot prompt we now need to produce.
 
 ---
 
+## 0. Platform constraints (confirmed)
+
+| Constraint | Value | Consequence |
+|---|---|---|
+| Token ceiling | 4,000, **system prompt only** | Turn history and tool definitions sit outside. The §4 allocation applies in full. |
+| Knowledge retrieval | RAG exists, **~70% accurate** | Not a binary. Drives a two-tier KB (§4a) and makes an explicit low-confidence deferral rule mandatory. |
+| End-call tool | Exists, **silent** — bot speaks the goodbye | No double-closure risk; that whole apparatus drops. Closing lines now *end on a farewell* — inverting Bob's rule. Whitelist stays (§6). |
+| Greeting | **Pre-recorded**, plays before the LLM | Step 1 opens directly on the first qualifier; greetings banned outright. Sharpens the first-turn language trap (§6a). |
+
+Still open: model identity, language set, variable syntax, transfer tool,
+post-call metrics. See §9.
+
+---
+
 ## 1. Disposition of Bob's assets
 
 | | Asset | Reasoning |
@@ -82,20 +96,44 @@ because early tokens hold attention best and both govern every turn.
 | 1 | Turn contract | ~120 | One question per turn; output ends at the first question mark; never write the lead's reply; max 3 sentences; plain speech. Stated **once**. |
 | 2 | Core rules | ~200 | Never re-ask; acknowledge then advance; stop on interruption; after two failed asks accept and move on; never request phone/email/ID. One compact anti-cascade WRONG/RIGHT pair. |
 | 3 | Identity + mission | ~140 | Name, company, role, tone, AI disclosure, single CTA, what the call is not. Persona gender where regional verb forms inflect. |
-| 4 | Language control | ~240 | One `ACTIVE_LANGUAGE`, starts at primary every call. Switch on explicit request only — never on the language the lead speaks. Yes/no/go-ahead words per language as *answers*. Carry Bob's closed-world phrasing verbatim — highest-value 240 tokens in the prompt. |
+| 4 | Language control | ~260 | One `ACTIVE_LANGUAGE`, starts at primary every call. Switch on explicit request only — never on the language the lead speaks. Yes/no/go-ahead words per language as *answers*. Carry Bob's closed-world phrasing verbatim — the highest-value tokens in the prompt, and now the *sole* defence against the first-turn trap (§6a). |
 | 5 | Flow state machine | ~1250 | A table, not prose. Elastic — scales with step count. |
-| 6 | Knowledge facts | ~900 | Bare facts the bot may state, no prose. Absent → route to human. Elastic. |
-| 7 | Objection patterns | ~380 | Not scripts: one pattern (acknowledge → one reframe → return to the exact step) plus topics mapped to answering facts. |
-| 8 | Recovery / edge cases | ~300 | Busy, not interested, DND, hostile, silence, voicemail, wrong person, off-KB. One line each, each naming its exit. |
-| 9 | Exit protocol + closings | ~240 | Closing lines **verbatim** — the end-call gate binds to them. |
-| 10 | Variables + capture | ~110 | What the call must return, with allowed values. |
-| — | Headroom | ~120 | |
+| 6 | Knowledge facts (Tier 1) | ~700 | Only facts that earn a slot per §4a. Bare facts, no prose framing. Long tail goes to RAG. |
+| 7 | RAG boundary | ~90 | Low-confidence deferral rule. Cheap, and doing more work than the KB itself at 70% retrieval. |
+| 8 | Objection patterns | ~380 | Not scripts: one pattern (acknowledge → one reframe → return to the exact step) plus topics mapped to answering facts. |
+| 9 | Recovery / edge cases | ~300 | Busy, not interested, DND, hostile, silence, voicemail, wrong person, off-KB. One line each, each naming its exit. |
+| 10 | Exit protocol + closings | ~200 | Closing lines **verbatim** with real farewells — they are the hangup whitelist. No double-closure apparatus needed. |
+| 11 | Variables + capture | ~110 | What the call must return, with allowed values. |
+| — | Headroom | ~250 | Larger than first drafted, because RAG absorbs the long-tail KB. |
 
-**Highest-leverage open question:** knowledge facts are 900 tokens — 22% of budget
-— spent on content that is not behaviour. If the platform can retrieve knowledge
-at runtime, that 900 goes straight into flow capacity (roughly double the steps).
-If not, KB competes with flow for every token and the generator needs a hard
-triage rule for which facts earn a slot.
+Total: 4,000 exactly. Two sections are elastic and trade against each other —
+FLOW scales with step count, Tier-1 KB with how much the bot may state unaided.
+
+## 4a. KB triage at 70% retrieval
+
+RAG existing does not mean facts leave the prompt. A ~30% miss rate means a
+wrong or absent answer on roughly 3 calls in 10, so placement is a
+**damage × frequency** decision, not a space decision.
+
+**State it in the prompt if any of these hold:**
+
+- **It gates a flow branch.** Non-negotiable. If step 3 routes on a threshold and
+  the threshold comes from a 70% retriever, the state machine's routing is 70%
+  reliable. Routing-critical facts are always in-prompt.
+- **It is asked on more than roughly a third of calls.** Price, eligibility,
+  timing, location. High frequency turns a 30% miss into a daily incident.
+- **A wrong answer is a compliance or commercial failure.** Pricing, legal terms,
+  eligibility claims. The cost of being wrong is not symmetric with the cost of
+  the tokens.
+
+**Leave it to RAG if** it is long-tail, low-damage, and safe to defer.
+
+**The rule that makes the other 30% harmless** — mandatory, ~90 tokens: if
+retrieval returns nothing, or returns something that does not clearly answer what
+was asked, the bot defers to the human team and continues the flow. It never
+improvises a fact and never treats a partial match as an answer. This converts a
+retrieval failure from a *hallucination* into a *graceful deferral*, which is why
+it is worth more per token than the facts it guards.
 
 ## 5. The flow becomes a state machine
 
@@ -155,8 +193,39 @@ failure. Instruct everything else.** Four things qualify:
    **whitelist of scripted closing lines**, never to a semantic judgement like
    "the task is complete", which is loosely true on every turn and produces a bot
    that hangs up after every reply. A whitelist needs the lines to exist verbatim.
+   **Inverted for our platform:** Bob's tool spoke its own farewell, so his rule
+   was that closing lines must end on *substantive content*. Ours is silent, so
+   our closing lines carry real farewells. Do not carry Bob's no-double-closure
+   apparatus across — it solves a bug we do not have. The whitelist still stands,
+   because premature hangup is about *when* the tool fires, not whether it speaks.
 4. **Per-language yes / no / go-ahead words** — cheap, and they defuse the
    first-turn trap where "हाँ, बताओ" reads as a language election, not an answer.
+
+## 6a. The first-turn language trap is our sharpest known risk
+
+Worth stating plainly because it is the one place where dropping fixed scripts
+removes a *proven* defence rather than a redundant one.
+
+The greeting is pre-recorded and plays in the primary language. The lead's first
+turn is therefore very often a yes-plus-go-ahead in their own language — "हाँ,
+बताओ", "haan ji, boliye", "avunu, cheppandi". Bob's comment on this is explicit
+and was verified in production: a prompt with a *perfect* top-level ruleset still
+spoke its Hindi line on turn one because the line was labelled only `HINDI:`. His
+fix was the per-line conditional gate, repeated on every line in every branch —
+and he credited that repetition, not the top-level rules, with actually fixing it.
+
+We are dropping exactly that mechanism, on budget grounds. Honest position: this
+is a real regression risk, not a solved problem. Three mitigations, in order of
+cost:
+
+1. Language control sits inside the first ~700 tokens, where attention is
+   strongest, and the go-ahead word registration stays **verbatim** — it is cheap
+   and it is the specific thing that misfires.
+2. Turn-1 language becomes **persona 1 in the drift harness**, checked on every
+   build, non-negotiable. This is the failure we measure first.
+3. If the harness shows it failing, the cheapest targeted fix is one worked
+   first-turn example inside language control (~60 tokens) — not thirty per-line
+   gates. Escalate only if measurement says the example is insufficient.
 
 ## 7. The new failure mode: under-specification
 
@@ -204,24 +273,27 @@ proven with a plain bot.
 
 ## 9. Open questions (ordered by design impact)
 
-1. **Is 4,000 the system prompt, or the whole request?** If it is the full window
-   — prompt + KB + turn history + tool definitions — a 20-turn call has history
-   eating into it and the prompt must land nearer 2,500. Materially different
-   architecture, not a tighter version of this one.
-2. **Can knowledge be retrieved at runtime?** Frees ~900 tokens (22%) straight
-   into flow capacity. Biggest single lever in the design.
-3. **Which tools exist at runtime?** Specifically: does an end-call tool exist and
-   does it speak its own farewell? Transfer to human? Language switch? Booking?
-   The end-call answer determines the exit protocol and the closing whitelist.
-4. **Is the greeting pre-recorded?** Bob's platform played it, so its prompts
-   opened directly on the first qualifier and banned greetings outright. If the
-   LLM speaks first, step 1 changes and the first-turn language trap sharpens.
-5. **Which model, and which languages?** Model fixes the real tokeniser so the
-   dashboard measures instead of estimating. Languages set the Indic multiplier
-   and the yes/no registrations.
-6. **Variable injection and post-call.** Is it `{{double_brace}}`, and what
-   runtime variables exist — a `context_summary` equivalent for repeat calls?
-   Do you have post-call metrics and dispositions, or does Acebot generate those?
+Resolved — see §0: budget scope (system prompt only), knowledge retrieval (RAG at
+~70%), end-call tool (silent), greeting (pre-recorded).
+
+Still open:
+
+1. **Which model?** Fixes the real tokeniser so the budget inspector measures
+   instead of estimating, and sets how much instruction-following headroom we
+   have. Also determines how cheaply the drift harness can run.
+2. **Which languages?** Sets the Indic multiplier, the yes/no/go-ahead
+   registrations, and whether language control needs its full 260 tokens or
+   collapses to almost nothing for an English-only bot.
+3. **Which other tools exist?** Transfer to human, booking or calendar, DTMF,
+   explicit language switch. Each either becomes a routing target in the state
+   machine or does not exist for the flow to reach.
+4. **Variable injection.** Is it `{{double_brace}}`, and what runtime variables
+   are available — specifically a `context_summary` equivalent for repeat calls.
+   Bob spent heavily here (the logic was written 3–4 times over); if we have it,
+   it needs a budget line and a single canonical skip-table.
+5. **Post-call.** Do you already have metrics and dispositions, or does Acebot
+   generate those too? Bob's `PCM_SYS` / QC engine is the largest untriaged part
+   of the archive and I have deliberately left it out of §8 pending this.
 
 Defensible regardless of the answers, because they follow from arithmetic rather
 than platform detail: the flow has to become a table, the language axis has to
