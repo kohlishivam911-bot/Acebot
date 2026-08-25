@@ -133,9 +133,12 @@ it the way someone actually talks on the phone.
 
 ## Writing a fixed line
 
-1. **A concrete commitment, never a vague one.** "आपको कल तक call आ जाएगा" — not "जल्दी ही
-   संपर्क कर लेंगे". A timeframe the caller can hold you to is the whole difference.
-2. **Name who acts** — showroom team, service team, sourcing manager. Not "team".
+1. **Name who acts and what they will do.** Not "team will contact you" but "showroom
+   team आपको call करके test drive का time तय कर लेंगे" — the actor, and the purpose of
+   their call. That is what makes a handoff feel real.
+2. **A timeframe is a client fact, never one you invent.** If the client has given you
+   a callback SLA, say it. If they have not, leave it out — "वो आपको call कर लेंगे" is
+   honest; a date you made up is a promise the business never agreed to.
 3. **A limit is a fact about the offering, never your own inability.** "MG में ये गाड़ी
    नहीं आती" is a fact; "मैं मदद नहीं कर पाऊँगी" is the bot apologising for itself.
 4. **End on substance.** Never a bare "धन्यवाद" as the whole line.

@@ -1231,6 +1231,28 @@ on a model with no ceiling. At four thousand the density is impossible, so these
 be encoded as compact instructions rather than copied as scripts — which is the whole
 instruction-based bet.
 
+### Correction, again: "कल तक" was a client fact, not a quality rule
+
+I took "आपको कल तक call आ जाएगा" from the Aranyakaa and Axon prompts and installed it in
+the platform rules as a universal requirement. It was that client's **callback SLA**.
+
+Two things wrong with that. Copying it into an MG prompt **fabricates a commitment** —
+I have no idea what MG's showroom turnaround is, and the same file already forbids
+giving delivery dates. And the evidence contradicts the rule: Bob's Kashi prompt says
+"हमारे sourcing manager आपसे **जल्दी ही** touch में होंगे exact time confirm करने के लिए" —
+the exact phrase I had just eliminated as vague. Bob uses a hard date only where the
+client supplied one.
+
+So the durable marker was never the timeframe. It is the **named actor plus the purpose
+of their call** — "exact time confirm करने के लिए", "test drive का time तय कर लेंगे". A
+timeframe is a client-supplied fact that belongs in the use-case section, and if nobody
+supplied one, its absence is correct.
+
+**This is the third time I have promoted a client-specific fact to a general rule.**
+Same class as content-versus-shape: when something looks like a quality signal, ask
+whether it would still be true for a different client. If it would not, it is a fact,
+and facts live in the use case.
+
 ### Bar one: fixed lines
 
 Bob's own closing rule is the seed — a closing line **ends on substantive content**,
@@ -1459,7 +1481,8 @@ Run before any prompt ships. This is the Auditor module's specification.
 71r. Every question in the flow carries its reason; none asks cold
 71s. Every objection handler ends on a question
 71t. No opener is used twice in a row; "जी" is not the default
-71u. Every commitment names a timeframe and who acts
+71u. Every commitment names who acts and the purpose of their call
+71u-b. No timeframe appears unless the client supplied it
 71v. The no-route captures what they do want before closing
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
