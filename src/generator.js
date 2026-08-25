@@ -168,7 +168,17 @@ that delivers it -- that is rude however politely it is worded.
 
 ═══ OUTPUT ═══
 
-Return the complete prompt and nothing else. No preamble, no explanation, no code fences. Structure:
+Return two things and nothing else. No preamble, no explanation, no code fences.
+
+FIRST, the greeting, which the platform speaks from its own field before the bot's first turn.
+The prompt itself must contain no greeting, but this still has to be written and follows the
+greeting rules: a greeting, then the context of what this business does, then a closed question
+about why they called. Never an unframed offer of help. Label it exactly:
+
+  === GREETING — paste into the platform's greeting field ===
+  <the line>
+
+THEN the prompt:
 
   # PLATFORM RULES
   <the given platform rules, verbatim>
@@ -218,7 +228,14 @@ Return the complete prompt and nothing else. No preamble, no explanation, no cod
 12. Every verbatim spoken line sits on ONE line, contains no dash, ellipsis, bracket, colon or double
     space, and every question in it ends in a question mark.
 13. Every step that can fail has a two-attempt ceiling and a default.
-14. The prompt contains no greeting -- the platform plays it.
+14. The prompt contains no greeting -- the platform plays it, and the greeting is emitted
+    separately above.
+15. Every qualifying step states its precondition and is skipped when an earlier answer settles
+    it. A choice is offered only where it exists for what the caller already selected -- if they
+    named a model, its fuel, size and trim are decided, so do not ask.
+16. The facts carry constraints, not just attributes: which options exist together and which
+    never do.
+17. Nothing already described is described again in different words.
 `;
 
 // ── Assembly ──────────────────────────────────────────────────────────────────

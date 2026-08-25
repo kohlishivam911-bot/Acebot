@@ -1078,6 +1078,48 @@ selected**: with only a hangup tool the bot cannot book, so the outcome is a
 captured, qualified request the team confirms — and the prompt must say plainly
 that nothing is booked yet.
 
+## 3c. Qualifiers have preconditions, and the greeting is a deliverable
+
+Two failures from an MG Motors test call, both structural.
+
+### A qualifier fired that an earlier answer had already settled
+
+> **Caller:** I was understanding Hector.
+> **Bot:** *(correct Hector specifics)* क्या आप इसे petrol में लेना चाहेंगे या electric option देख रहे हैं?
+> **Caller:** Electric ki taraf zyada inclined hoon.
+> **Bot:** *(switches to Windsor EV and ZS EV)*
+
+The Hector has no electric variant. The step said "ask petrol or electric" with no
+precondition, so it fired on a caller who had already named a model — which decides
+the fuel. Offering the choice invented an option; when the caller took it, the bot
+had to abandon the car they rang about.
+
+**Every qualifying step states its precondition and is skipped when an earlier
+answer determines it.** This is the cross-step form of "never ask a question your
+own sentence just answered" (§1a-xi) — same failure, one turn further apart, and
+invisible unless the generator is told to look for it.
+
+Sharper still: **a choice offered must exist for what the caller has selected.**
+Generic qualifiers — fuel, size, tier, plan — are only askable inside the set the
+caller's own choice still leaves open. So the facts must carry the constraint, not
+just the attributes: which models are electric only, which are not, and that none
+is offered both ways. Attributes alone let the model infer a choice that the
+catalogue does not offer.
+
+### The greeting is spoken by the platform but written by the generator
+
+The platform plays the greeting from its own field, so the prompt correctly
+contains none (§1a-xvi). But that left the opener to whatever happened to be in
+that field — and what played was the unframed "मैं आपकी किस तरह मदद कर सकती हूँ?"
+that §1a-xiv exists to prevent.
+
+Both things are true at once: the prompt must not contain a greeting, and the
+greeting still has to follow the greeting rules. So the generator emits it as a
+**separate, clearly labelled deliverable** to paste into the platform's field —
+greeting, context, closed intent question — rather than leaving turn zero to
+chance. Anything the platform speaks but the prompt does not own still belongs in
+the generator's output.
+
 ## 4. The section skeleton
 
 Order is load-bearing. Interrupts sit above the flow because they are checked
@@ -1253,6 +1295,11 @@ Run before any prompt ships. This is the Auditor module's specification.
 71d. The goal is a named checkable outcome drawn from the industry, never left abstract
 71e. Qualification steps come before the offer
 71f. The goal is reachable with the selected tools, or the prompt says what is not booked
+71g. Every qualifying step states its precondition and is skipped when an earlier answer settles it
+71h. A choice is offered only where it exists for what the caller already selected
+71i. The facts carry constraints, not just attributes
+71j. Nothing already described is described again
+71k. The greeting is emitted as a separate deliverable, following the greeting rules
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome
