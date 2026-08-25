@@ -1253,6 +1253,39 @@ Same class as content-versus-shape: when something looks like a quality signal, 
 whether it would still be true for a different client. If it would not, it is a fact,
 and facts live in the use case.
 
+### Correction: a rule applied every turn becomes a ritual
+
+I took the four Bob rules and made each of them mandatory on every turn. The result was
+worse than what it replaced, and the failures are specific:
+
+- **A reason on every question became a tic.** Six consecutive turns carried a "ताकि…"
+  clause. Bob attaches a reason where the ask is not self-evident — a budget, a city —
+  and asks plainly everywhere else.
+- **I put the reason after the question, which broke the punctuation.** "बता दीजिए कि आप
+  किस शहर से बात कर रहे हैं, ताकि मैं showroom ढूँढ सकूँ?" — the question ends mid-sentence and
+  the mark lands on the reason. Bob's own example is reason-first: "आपको सही unit suggest
+  कर सकूँ, तो roughly आपका budget कितना होगा?" Reason first, question last.
+- **"Acknowledge specifically" produced flattery and echoing.** "Oh Windsor EV, बहुत बढ़िया
+  choice है" delays the facts the caller rang for. "अगले महीने, ठीक है" repeats their own
+  words back — which breaks Bob's rule 5, *never repeat or paraphrase what the lead just
+  said*, a rule I already had. The right move is "जी, मैं note कर लेती हूँ।"
+- **Hinglish came out as Hindi.** With Hinglish selected I wrote grammatically correct,
+  long, Hindi-heavy sentences. Hinglish means English for anything technical or
+  transactional and Hindi for the joins — and short.
+
+The general lesson, and it is the mirror of the vagueness problem: **a rule that fires
+every turn stops being a rule and becomes scaffolding the caller can hear.** Each of
+these belongs in the generator as a move that is *available*, with a stated condition for
+when it applies — never as a per-turn requirement.
+
+### The loop this run exposed
+
+The same transcript asked about exchange **four times**, then asked it again *after*
+moving on to city. Cause: my steps said "never ask twice" on one step and nothing on the
+others, and non-answers ("Okay", "Hmm", and garbled STT) were not classified as
+non-answers. Now a platform rule: a filler, an unclear word or silence is not an answer;
+re-ask once in fewer words, then drop the step and never return to it.
+
 ### Bar one: fixed lines
 
 Bob's own closing rule is the seed — a closing line **ends on substantive content**,
@@ -1484,6 +1517,10 @@ Run before any prompt ships. This is the Auditor module's specification.
 71u. Every commitment names who acts and the purpose of their call
 71u-b. No timeframe appears unless the client supplied it
 71v. The no-route captures what they do want before closing
+71w. No reason clause appears on a question whose purpose is self-evident
+71x. Where a reason is given it precedes the question, and the line ends on the mark
+71y. No line echoes the caller's answer back or praises their choice
+71z. Every step has a two-tries-then-drop rule, and no step is revisited once passed
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome
