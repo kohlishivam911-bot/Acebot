@@ -1195,6 +1195,42 @@ RevSpot's production prompts, which are not in the archive. Acebot writes from
 first principles, so it has to generate that quality rather than inherit it — which
 means the bar has to be written down.
 
+### Correction: four real Bob prompts arrived, and two of my rules were wrong
+
+The user then supplied four prompts Bob actually generated — Aranyakaa Farms, Propsoch,
+Axon Developers, Kashi Nirmal Heights. The quality is **specified in them explicitly**,
+so this stops being inference. Two of my own rules were wrong or thin:
+
+- **"Committed verbs" was wrong.** Bob's own closing line is "मैं हमारी direct sales team
+  को बोल देती हूँ कि वो आपसे contact करें — आपको कल तक call आ जाएगा।" It uses the exact verb
+  I had called limp. What makes it good is **"कल तक"** — a concrete timeframe — and a
+  **named actor**. My replacement line said "जल्दी ही संपर्क कर लेंगे", which is vague on
+  both counts. The verb was never the defect; vagueness was.
+- **The register was too formal.** Bob states it: *"Hindi should be conversational — the
+  way people actually speak in daily life, not शुद्ध हिंदी"*, and *"घर not निवास, पास में
+  not समीप"*. Its lines are heavily Hinglish — "अच्छा okay", "बस quickly check कर लूँ",
+  "सच कहूँ तो", "अरे बढ़िया". Mine were correct Hindi and stiff.
+
+Four rules I did not have at all, each stated outright in Bob:
+
+1. **Every question carries its reason.** Bob's TRANSITION RULE — *Wrong: "समझ गयी। Budget
+   कितना है?" Right: "अच्छा okay. और आपको सही unit suggest कर सकूँ, तो roughly आपका budget
+   कितना होगा?"* Every one of my steps asked cold. This is the single largest gap.
+2. **Acknowledgements are content-specific, and rotate.** Bob rejects generic ones by
+   name — *"Do NOT use generic phrases like Great, I understand, Got it repeatedly.
+   These sound robotic. Your acknowledgement must connect to what they just said"* — and
+   adds a variety rule. My prompt opened nearly every line with "जी", which breaks the
+   variety rule I had just written.
+3. **Every rebuttal ends with a question.** Stated identically in all four prompts. My
+   objection handlers ended on statements.
+4. **One nudge, then accept — and mine the no.** Bob's no-routes capture what the lead
+   *does* want and their budget before closing. My C4 just said goodbye.
+
+Note what does **not** transfer: each Bob prompt runs fifteen thousand tokens or more,
+on a model with no ceiling. At four thousand the density is impossible, so these have to
+be encoded as compact instructions rather than copied as scripts — which is the whole
+instruction-based bet.
+
 ### Bar one: fixed lines
 
 Bob's own closing rule is the seed — a closing line **ends on substantive content**,
@@ -1420,6 +1456,11 @@ Run before any prompt ships. This is the Auditor module's specification.
 71o. Every fixed line passes the six checks in the platform rules
 71p. No step instruction leaves a content choice open; judgement is pre-resolved in the facts
 71q. Sentence counts are exact, never a range
+71r. Every question in the flow carries its reason; none asks cold
+71s. Every objection handler ends on a question
+71t. No opener is used twice in a row; "जी" is not the default
+71u. Every commitment names a timeframe and who acts
+71v. The no-route captures what they do want before closing
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome
