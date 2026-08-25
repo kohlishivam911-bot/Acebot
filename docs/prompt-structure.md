@@ -1021,6 +1021,63 @@ axes before promising the space.
    named alternative plus acceptance of a no.
 5. Point each at an existing closure wherever one fits.
 
+## 3b. Industry playbooks — the goal and the flow shape come from the industry
+
+The MG Motors prompt qualified nothing and looped. Trace of the real call:
+
+> **Bot:** Gloster एक large seven-seat SUV है। क्या मैं इसके बारे में और जानकारी दूँ?
+> **Caller:** Yes Ma'am, tell me
+> **Bot:** Gloster एक बड़ी seven-seat SUV है। क्या आप जानना चाहेंगे कि ये किस शहर में उपलब्ध है?
+
+Asked to say more about the car, it restated the category in different words, then
+changed the subject. Three failures compound here, and all three are method gaps.
+
+### The recommendation turn must carry specifics, not the category again
+
+"Gloster is a large seven-seat SUV" is the class, not the car. §1a-xix already says
+the turn before an ask names a specific instance — that rule extends to **every**
+information turn, not just the one before the ask. A recommendation names what a
+buyer actually weighs: the engine or range, the seats, the one feature that
+distinguishes it. "Gloster में two-litre twin-turbo diesel है, seven seats, और 4x4
+option भी मिलता है" is a car. The other sentence is a brochure heading.
+
+### A prompt with no facts can only ask permission to speak
+
+The root cause. The Facts section said `FILL FROM THE KNOWLEDGE BASE` — so the bot
+had nothing to say, and the only move left was to ask whether it may say it. Hence
+"क्या मैं इसके बारे में और जानकारी दूँ?" twice.
+
+**When no knowledge base is supplied, the generator supplies the product knowledge
+it already has.** A named client in a known industry is not an empty brief: the
+model lineup, the specs, the segments are all knowable. Mark only the volatile
+things — price, current offers, stock, delivery dates — as team-confirmed. Shipping
+a placeholder where facts belong produces a bot that cannot hold a conversation.
+
+Corollary, now a platform rule: **never ask permission to give information.** If
+the step says to say something, say it. "May I tell you more about it?" is a
+comprehension check wearing a different hat.
+
+### The goal and the flow skeleton are properties of the industry
+
+This is what the industry selector is for, and the generator was ignoring it. Each
+industry has a small set of real goals and a canonical shape. The goal is always a
+**named, checkable outcome**, never "qualify leads" left abstract.
+
+| Industry | Real goals | Flow skeleton |
+|---|---|---|
+| Automotive sales | Test drive booked · showroom callback | need → recommend a specific model with specs → qualify on budget, timeline, exchange → offer the test drive → capture → confirm |
+| Healthcare | Appointment booked · callback | concern → department → city → the named doctor with fee → offer → capture → slot → confirm |
+| Real estate | Site visit scheduled · senior callback | requirement of configuration, budget, locality → recommend a named project with specifics → qualify → offer the visit → capture → confirm |
+| Education | Counselling session · application started | interest → programme → eligibility → offer counselling → capture |
+| Banking, insurance | Specialist callback · documents collected | need → product → eligibility → offer the callback → capture |
+
+Two rules follow. **Qualification comes before the offer** — that is what makes a
+lead a lead, and a flow that jumps from a product name to "shall I have someone
+call you" has qualified nobody. And **the goal must be reachable with the tools
+selected**: with only a hangup tool the bot cannot book, so the outcome is a
+captured, qualified request the team confirms — and the prompt must say plainly
+that nothing is booked yet.
+
 ## 4. The section skeleton
 
 Order is load-bearing. Interrupts sit above the flow because they are checked
@@ -1190,6 +1247,12 @@ Run before any prompt ships. This is the Auditor module's specification.
 68. Each boundary is classified hard or soft; soft names one alternative and accepts a no
 69. A competitor's product named by the caller is never disparaged and never claimed
 70. Boundary triggers point at existing closures rather than adding new lines
+71a. Every information turn names specifics, not the category restated
+71b. With no knowledge base, the generator supplies the product knowledge it has
+71c. Never ask permission to give information
+71d. The goal is a named checkable outcome drawn from the industry, never left abstract
+71e. Qualification steps come before the offer
+71f. The goal is reachable with the selected tools, or the prompt says what is not booked
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome
