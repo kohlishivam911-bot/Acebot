@@ -1181,6 +1181,59 @@ and it appeared twice. It surfaced precisely where the model had no defined path
 which is §1a-xviii again — a register leak is a symptom of a flow gap, and closing
 the gap is what fixes it.
 
+## 3f. What Bob actually held, and the two quality bars it implies
+
+Asked to match Bob's language quality, I went through the archive properly. **It
+contains twenty-eight lines with Devanagari in them and not one is a spoken line.**
+Every one is a ban list, a filler-word list, a go-ahead registration, a gender verb
+form, or a number-pronunciation rule.
+
+That is the correct finding, not a gap in the search: Bob **adapted a reference
+prompt**, so the client's own dialogue carried the language quality and Bob only
+carried rules about it. The quality anyone remembers from those bots lived in
+RevSpot's production prompts, which are not in the archive. Acebot writes from
+first principles, so it has to generate that quality rather than inherit it — which
+means the bar has to be written down.
+
+### Bar one: fixed lines
+
+Bob's own closing rule is the seed — a closing line **ends on substantive content**,
+never on a farewell. Extended into six checks a line must pass, now in the platform
+rules: open on acknowledgement not the negative; state a limit as a fact about the
+offering rather than your own inability; end on what happens next; the business owns
+the next action; committed verbs over flat ones; never a bare farewell.
+
+Measured against that, lines I had shipped fail badly:
+
+| Shipped | Fails | Fixed |
+|---|---|---|
+| "ये हमारे यहाँ नहीं है, तो इसमें मैं मदद नहीं कर पाऊँगी।" | 1, 2, 3 | "जी, MG में ये गाड़ी नहीं आती। मैं आपकी बात team तक पहुँचा देती हूँ, वो आपको आगे की जानकारी दे देंगे।" |
+| "ठीक है, मैं team को बता देती हूँ, वो आपको call कर लेंगे।" | 1, 5 | "जी बिल्कुल, मैं आपकी बात team तक पहुँचा देती हूँ। वो आपसे जल्दी ही संपर्क कर लेंगे।" |
+| "कोई बात नहीं, जब चाहें तब call कर लीजिए।" | 4 | "जी, कोई जल्दी नहीं है। आप आराम से सोचिए, और जब भी मन बने, हम आपके लिए मौजूद हैं।" |
+
+The third is the instructive one: it reads as polite and is actually a shrug,
+because it hands the next move to the customer.
+
+### Bar two: an instruction is vague if two runs differ in substance
+
+The report was that the same bot spoke well on one call and badly on the next.
+That is variance, and variance means the instruction left a choice open.
+
+**A step instruction is too vague if two runs would say different things — not
+different words, different things.** Wording should vary; content should not.
+
+My own offenders, and why:
+
+- *"the one feature that sets it apart"* — a judgement the model makes fresh each
+  call, so it picks differently each time. Fix: name the feature per model in the
+  facts, so there is nothing left to choose.
+- *"two or three sentences"* — a range is a choice. Say which.
+- *"say back what you are passing on"* — say back *what*, exactly. List the fields.
+
+The rule: **a step names the fields to say, in order. Any judgement left to the
+model is pre-resolved in the facts.** Wherever a step reads like it needs taste,
+the taste belongs in the facts section, decided once.
+
 ## 4. The section skeleton
 
 Order is load-bearing. Interrupts sit above the flow because they are checked
@@ -1364,6 +1417,9 @@ Run before any prompt ships. This is the Auditor module's specification.
 71l. The script rule survives a mismatched greeting and a mismatched caller
 71m. Discovery shape is chosen by catalogue familiarity: ask when they know it, recommend when they do not
 71n. STT tolerance for names is present, with the predictable near-misses listed
+71o. Every fixed line passes the six checks in the platform rules
+71p. No step instruction leaves a content choice open; judgement is pre-resolved in the facts
+71q. Sentence counts are exact, never a range
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome
