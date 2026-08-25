@@ -178,7 +178,7 @@ export default function App() {
         else content.push({ type: "text", text: `--- knowledge base: ${f.name} ---\n${f.text}` });
       }
       const text = await callClaude({
-        model: health?.model || "claude-sonnet-4-6",
+        model: health?.model || "claude-sonnet-5",
         max_tokens: 16000,
         system: buildSystemPrompt(platform),
         messages: [{ role: "user", content }],

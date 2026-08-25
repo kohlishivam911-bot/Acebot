@@ -25,7 +25,7 @@ const app = express();
 app.use(express.json({ limit: "32mb" })); // room for base64 knowledge-base uploads
 
 const PORT = process.env.PORT || 3000;
-const GENERATOR_MODEL = process.env.GENERATOR_MODEL || "claude-sonnet-4-6";
+const GENERATOR_MODEL = process.env.GENERATOR_MODEL || "claude-sonnet-5";
 
 // Tolerate the usual paste mistakes: wrapping quotes, stray whitespace.
 let ANTHROPIC_API_KEY = (process.env.ANTHROPIC_API_KEY || "").trim();
