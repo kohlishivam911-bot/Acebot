@@ -1120,6 +1120,67 @@ greeting, context, closed intent question — rather than leaving turn zero to
 chance. Anything the platform speaks but the prompt does not own still belongs in
 the generator's output.
 
+## 3d. Catalogue familiarity decides who leads the discovery
+
+The bot listed three cars and asked "आपको इनमें से कौन सी पसंद आएगी?" — handing the
+caller a menu. For cars that is nearly right but backwards; for a property or an
+insurance product it would be nonsense. The variable is **how much of the
+catalogue the customer already knows before they call**, and it is a property of
+the industry.
+
+**High familiarity** — cars, phones, airlines, well-known consumer brands. The
+caller usually has a name in mind and has probably already read about it. So ask
+whether they have one in mind, and only run through the range if they do not.
+Leading with a list wastes the turn and sounds like a brochure.
+
+**Low familiarity** — real estate projects, insurance and investment products,
+medical departments, course catalogues, B2B services. The caller knows their
+*need*, not your inventory, and cannot pick from a list of names they have never
+heard. So take the need — budget, locality, configuration, symptom, goal — and
+**recommend one specific thing**, with the reason it fits. Asking them to choose
+is asking them to do your job.
+
+| Industry | Familiarity | Discovery step |
+|---|---|---|
+| Automotive, consumer electronics | High | "Do you have a model in mind, or shall I run through what we have?" |
+| Real estate, insurance, investments | Low | Take budget, locality, configuration → recommend one project or product, and say why |
+| Healthcare | Low | Take the symptom → name the department and the doctor |
+| Education | Mixed | They may know the course but not the eligibility route |
+
+The generator picks the discovery shape from this, not from a template. And note
+the interaction with §3b: on a high-familiarity call the recommendation still has
+to carry specifics — knowing the name is not knowing the car.
+
+## 3e. Speech-to-text tolerance is not optional, and its absence looks like rudeness
+
+Same call, a caller asking about the Astor:
+
+> **Caller:** Ma'am, main co-actor ke liye soch raha tha.
+> **Bot:** मुझे माफ़ कीजिए, पर मैं समझ नहीं पायी।
+> **Caller:** I was thinking about the actor.
+> **Bot:** माफ़ कीजिए, मैं सिर्फ MG की cars के बारे में बता सकती हूँ।
+
+The engine mangled "Astor" into "co-actor" and "actor", and the prompt had no rule
+for it — so a real buyer, naming a real product, was told he was off-topic and the
+call died. Bob carried an STT section for exactly this and it was dropped when the
+platform rules were written; restoring it is a regression fix, not an addition.
+
+**Names are what break.** Products, models, people, places — every one of them
+arrives corrupted, and the fix is to match to the nearest name in the facts and
+carry on **silently**. Never read the garbled word back, never announce that you
+did not understand a name, and never let a near-miss fall through to the
+out-of-scope path. Only when nothing in the facts is close do you ask, once.
+
+Where a catalogue has names a speech engine will predictably mangle, the generated
+prompt should carry the near-misses explicitly — actor and aster for Astor,
+gloucester for Gloster — because naming them is cheaper than the model reasoning
+about phonetics mid-call.
+
+**Note also which rule leaked while this happened:** "माफ़ कीजिए" is banned outright,
+and it appeared twice. It surfaced precisely where the model had no defined path,
+which is §1a-xviii again — a register leak is a symptom of a flow gap, and closing
+the gap is what fixes it.
+
 ## 4. The section skeleton
 
 Order is load-bearing. Interrupts sit above the flow because they are checked
@@ -1300,6 +1361,9 @@ Run before any prompt ships. This is the Auditor module's specification.
 71i. The facts carry constraints, not just attributes
 71j. Nothing already described is described again
 71k. The greeting is emitted as a separate deliverable, following the greeting rules
+71l. The script rule survives a mismatched greeting and a mismatched caller
+71m. Discovery shape is chosen by catalogue familiarity: ask when they know it, recommend when they do not
+71n. STT tolerance for names is present, with the predictable near-misses listed
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome
