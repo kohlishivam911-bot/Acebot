@@ -1241,41 +1241,61 @@ the same shape of facts**, and every difference is forced by the use case:
 Neither is a variant of the other. Each was derived. So the generator does not carry a
 section list — it carries these questions, and the answers decide which sections exist.
 
-**1. What does the caller know when they ring?** Nothing about the catalogue → step 1
+**1. Who called whom?** This comes before everything else and I got it wrong on the
+Godrej bot, generating an inbound flow for an outbound one.
+
+**Inbound**: they want something, so they have already paid for the right to be asked
+questions. Qualify, then deliver.
+
+**Outbound**: they wanted nothing. **Every question asked before you have given them
+something is an imposition**, and the qualifiers stack up as an interrogation. So an
+outbound flow **pitches first** — what the project is, what they get — and qualifies only
+where the answer changes what happens next. On an outbound call the greeting also never
+claims what the customer has done: "आपने interest दिखाया था" invites "मेरा number कहाँ से
+मिला" and puts them on the back foot. Say what you are calling about instead.
+
+Two consequences that caught me out. **The name is already in the CRM on an outbound
+call**, so a name step is dead weight — the name arrives as a variable. And an outbound
+bot **cannot run on a permission-boundary facts section**: with nothing concrete to
+pitch it has nothing to say, which is the same failure as the early MG bot that could
+only ask permission to speak. An outbound prompt needs real substance in its facts or it
+does not ship.
+
+**2. What does the caller know when they ring?** Nothing about the catalogue → step 1
 takes their *need* and you recommend. They already know the product → step 1 asks which
 one. This single answer sets the whole opening.
 
-**2. What is the irreversible harm, and whose?** Healthcare screens the *caller's* state
+**3. What is the irreversible harm, and whose?** Healthcare screens the *caller's* state
 — an emergency ends the call before anything else happens. Real estate screens *the
 bot's own claims* — a quoted price or a promised return is the harm. Same section name,
 opposite direction, so never copy one into the other.
 
-**3. What breaks when the model gets a fact wrong?** That decides the shape of Facts,
+**4. What breaks when the model gets a fact wrong?** That decides the shape of Facts,
 and there are at least three: a **table** when attributes must be looked up per row; a
 **grouping by the constraint that breaks** when one dimension must never be crossed; a
 **permission boundary** — what you may say versus what only the team may say — when the
 project is real but you do not hold its details.
 
-**4. Can the bot complete the goal?** Tools that book need a read-back-and-confirm step
+**5. Can the bot complete the goal?** Tools that book need a read-back-and-confirm step
 and a closure that states it is done. A bot that can only request needs neither, and
 must never phrase a request as a confirmation.
 
-**5. Is the caller the beneficiary?** A third party on the line — a family member, a
+**6. Is the caller the beneficiary?** A third party on the line — a family member, a
 co-decider — forces a pronoun rule and a "who is this for" step. Where the caller is the
 buyer, both are dead weight.
 
-**6. What does speech-to-text break in this domain?** Short product names get clipped.
+**7. What does speech-to-text break in this domain?** Short product names get clipped.
 Numbers collide — one BHK against ek bhk, crore against karod. Symptoms are described,
 not named, so they barely break at all. Write the section for what actually breaks here.
 
-**7. When is the name actually needed?** Early if a tool call needs it. Late if it is
+**8. When is the name actually needed?** Never, on an outbound call. Early if a tool call needs it. Late if it is
 only a label on a handoff.
 
-**8. Is out-of-scope substitutable?** Offer the nearest thing when substituting is
+**9. Is out-of-scope substitutable?** Offer the nearest thing when substituting is
 harmless. Reject exhaustively when a near-miss does damage — which is why healthcare
 lists what it cannot treat and automotive does not.
 
-Answer the eight, then write only the sections the answers call for. **A section that no
+Answer the nine, then write only the sections the answers call for. **A section that no
 answer asked for is padding, and a section the answers demand cannot be inherited from
 another client's file.**
 
@@ -1464,7 +1484,7 @@ Run before any prompt ships. This is the Auditor module's specification.
 71n. STT tolerance for names is present, with the predictable near-misses listed
 71o. No rule in the generated prompt fires on every turn; each states when it applies
 71p. The section list was derived from the eight questions in 3g, not inherited from another client
-71q. No section exists that none of the eight answers called for
+71q. No section exists that none of the nine answers called for
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome
