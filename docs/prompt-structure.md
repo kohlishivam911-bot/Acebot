@@ -1181,149 +1181,44 @@ and it appeared twice. It surfaced precisely where the model had no defined path
 which is §1a-xviii again — a register leak is a symptom of a flow gap, and closing
 the gap is what fixes it.
 
-## 3f. What Bob actually held, and the two quality bars it implies
+## 3f. Why the Bob prompts could not be used as a style source
 
-Asked to match Bob's language quality, I went through the archive properly. **It
-contains twenty-eight lines with Devanagari in them and not one is a spoken line.**
-Every one is a ban list, a filler-word list, a go-ahead registration, a gender verb
-form, or a number-pronunciation rule.
+Four prompts Bob actually generated were supplied as a quality target — Aranyakaa Farms,
+Propsoch, Axon Developers, Kashi Nirmal Heights. I spent three rounds distilling style
+rules from them into this file and applying them. **Every round made the prompt worse,
+and the version from before that work was better.** It has been restored.
 
-That is the correct finding, not a gap in the search: Bob **adapted a reference
-prompt**, so the client's own dialogue carried the language quality and Bob only
-carried rules about it. The quality anyone remembers from those bots lived in
-RevSpot's production prompts, which are not in the archive. Acebot writes from
-first principles, so it has to generate that quality rather than inherit it — which
-means the bar has to be written down.
+The rules I extracted were all really in those prompts — a reason attached to questions,
+content-specific acknowledgements, rebuttals ending on a question, one nudge then accept.
+They failed anyway, and the reason is structural rather than a mistake in any one rule:
 
-### Correction: four real Bob prompts arrived, and two of my rules were wrong
+**Those prompts are a different genre.** Each runs fifteen thousand tokens or more on a
+model with no ceiling, and every line the bot will ever speak is written out. In that
+form a rule is invisible — it was applied once, by the author, at authoring time, and
+what ships is the finished line. Acebot has four thousand tokens and writes
+*instructions*, so a rule has to ship as a rule the model reads every turn. Compressed
+that way it stops being taste and becomes scaffolding the caller can hear: "a reason on
+every question" became six consecutive "ताकि…" clauses; "acknowledge specifically"
+became flattery and echoing the caller's own words back.
 
-The user then supplied four prompts Bob actually generated — Aranyakaa Farms, Propsoch,
-Axon Developers, Kashi Nirmal Heights. The quality is **specified in them explicitly**,
-so this stops being inference. Two of my own rules were wrong or thin:
+**A scripted prompt's style cannot be lifted into an instruction-based one.** The
+technique that produces a good line by hand becomes a tic when a model must apply it
+every turn. This is the same failure as §1a-xi — specify content, not shape — arriving
+from the other direction.
 
-- **"Committed verbs" was wrong.** Bob's own closing line is "मैं हमारी direct sales team
-  को बोल देती हूँ कि वो आपसे contact करें — आपको कल तक call आ जाएगा।" It uses the exact verb
-  I had called limp. What makes it good is **"कल तक"** — a concrete timeframe — and a
-  **named actor**. My replacement line said "जल्दी ही संपर्क कर लेंगे", which is vague on
-  both counts. The verb was never the defect; vagueness was.
-- **The register was too formal.** Bob states it: *"Hindi should be conversational — the
-  way people actually speak in daily life, not शुद्ध हिंदी"*, and *"घर not निवास, पास में
-  not समीप"*. Its lines are heavily Hinglish — "अच्छा okay", "बस quickly check कर लूँ",
-  "सच कहूँ तो", "अरे बढ़िया". Mine were correct Hindi and stiff.
+Two findings from those rounds were real defects rather than style, and are recorded here
+**unapplied**, pending a decision:
 
-Four rules I did not have at all, each stated outright in Bob:
+1. **Non-answers were never classified.** In one test call the exchange question was
+   asked four times and then asked again after the flow had moved on, because fillers,
+   garbled speech and silence were not treated as failures to answer. A two-tries-then-
+   drop rule would fix it; it is a bug, not a matter of taste.
+2. **An invented callback timeframe is a fabricated commitment.** "आपको कल तक call आ
+   जाएगा" was one client's SLA. Copying it into another client's prompt promises
+   something the business never agreed to, and this file already forbids delivery dates.
 
-1. **Every question carries its reason.** Bob's TRANSITION RULE — *Wrong: "समझ गयी। Budget
-   कितना है?" Right: "अच्छा okay. और आपको सही unit suggest कर सकूँ, तो roughly आपका budget
-   कितना होगा?"* Every one of my steps asked cold. This is the single largest gap.
-2. **Acknowledgements are content-specific, and rotate.** Bob rejects generic ones by
-   name — *"Do NOT use generic phrases like Great, I understand, Got it repeatedly.
-   These sound robotic. Your acknowledgement must connect to what they just said"* — and
-   adds a variety rule. My prompt opened nearly every line with "जी", which breaks the
-   variety rule I had just written.
-3. **Every rebuttal ends with a question.** Stated identically in all four prompts. My
-   objection handlers ended on statements.
-4. **One nudge, then accept — and mine the no.** Bob's no-routes capture what the lead
-   *does* want and their budget before closing. My C4 just said goodbye.
-
-Note what does **not** transfer: each Bob prompt runs fifteen thousand tokens or more,
-on a model with no ceiling. At four thousand the density is impossible, so these have to
-be encoded as compact instructions rather than copied as scripts — which is the whole
-instruction-based bet.
-
-### Correction, again: "कल तक" was a client fact, not a quality rule
-
-I took "आपको कल तक call आ जाएगा" from the Aranyakaa and Axon prompts and installed it in
-the platform rules as a universal requirement. It was that client's **callback SLA**.
-
-Two things wrong with that. Copying it into an MG prompt **fabricates a commitment** —
-I have no idea what MG's showroom turnaround is, and the same file already forbids
-giving delivery dates. And the evidence contradicts the rule: Bob's Kashi prompt says
-"हमारे sourcing manager आपसे **जल्दी ही** touch में होंगे exact time confirm करने के लिए" —
-the exact phrase I had just eliminated as vague. Bob uses a hard date only where the
-client supplied one.
-
-So the durable marker was never the timeframe. It is the **named actor plus the purpose
-of their call** — "exact time confirm करने के लिए", "test drive का time तय कर लेंगे". A
-timeframe is a client-supplied fact that belongs in the use-case section, and if nobody
-supplied one, its absence is correct.
-
-**This is the third time I have promoted a client-specific fact to a general rule.**
-Same class as content-versus-shape: when something looks like a quality signal, ask
-whether it would still be true for a different client. If it would not, it is a fact,
-and facts live in the use case.
-
-### Correction: a rule applied every turn becomes a ritual
-
-I took the four Bob rules and made each of them mandatory on every turn. The result was
-worse than what it replaced, and the failures are specific:
-
-- **A reason on every question became a tic.** Six consecutive turns carried a "ताकि…"
-  clause. Bob attaches a reason where the ask is not self-evident — a budget, a city —
-  and asks plainly everywhere else.
-- **I put the reason after the question, which broke the punctuation.** "बता दीजिए कि आप
-  किस शहर से बात कर रहे हैं, ताकि मैं showroom ढूँढ सकूँ?" — the question ends mid-sentence and
-  the mark lands on the reason. Bob's own example is reason-first: "आपको सही unit suggest
-  कर सकूँ, तो roughly आपका budget कितना होगा?" Reason first, question last.
-- **"Acknowledge specifically" produced flattery and echoing.** "Oh Windsor EV, बहुत बढ़िया
-  choice है" delays the facts the caller rang for. "अगले महीने, ठीक है" repeats their own
-  words back — which breaks Bob's rule 5, *never repeat or paraphrase what the lead just
-  said*, a rule I already had. The right move is "जी, मैं note कर लेती हूँ।"
-- **Hinglish came out as Hindi.** With Hinglish selected I wrote grammatically correct,
-  long, Hindi-heavy sentences. Hinglish means English for anything technical or
-  transactional and Hindi for the joins — and short.
-
-The general lesson, and it is the mirror of the vagueness problem: **a rule that fires
-every turn stops being a rule and becomes scaffolding the caller can hear.** Each of
-these belongs in the generator as a move that is *available*, with a stated condition for
-when it applies — never as a per-turn requirement.
-
-### The loop this run exposed
-
-The same transcript asked about exchange **four times**, then asked it again *after*
-moving on to city. Cause: my steps said "never ask twice" on one step and nothing on the
-others, and non-answers ("Okay", "Hmm", and garbled STT) were not classified as
-non-answers. Now a platform rule: a filler, an unclear word or silence is not an answer;
-re-ask once in fewer words, then drop the step and never return to it.
-
-### Bar one: fixed lines
-
-Bob's own closing rule is the seed — a closing line **ends on substantive content**,
-never on a farewell. Extended into six checks a line must pass, now in the platform
-rules: open on acknowledgement not the negative; state a limit as a fact about the
-offering rather than your own inability; end on what happens next; the business owns
-the next action; committed verbs over flat ones; never a bare farewell.
-
-Measured against that, lines I had shipped fail badly:
-
-| Shipped | Fails | Fixed |
-|---|---|---|
-| "ये हमारे यहाँ नहीं है, तो इसमें मैं मदद नहीं कर पाऊँगी।" | 1, 2, 3 | "जी, MG में ये गाड़ी नहीं आती। मैं आपकी बात team तक पहुँचा देती हूँ, वो आपको आगे की जानकारी दे देंगे।" |
-| "ठीक है, मैं team को बता देती हूँ, वो आपको call कर लेंगे।" | 1, 5 | "जी बिल्कुल, मैं आपकी बात team तक पहुँचा देती हूँ। वो आपसे जल्दी ही संपर्क कर लेंगे।" |
-| "कोई बात नहीं, जब चाहें तब call कर लीजिए।" | 4 | "जी, कोई जल्दी नहीं है। आप आराम से सोचिए, और जब भी मन बने, हम आपके लिए मौजूद हैं।" |
-
-The third is the instructive one: it reads as polite and is actually a shrug,
-because it hands the next move to the customer.
-
-### Bar two: an instruction is vague if two runs differ in substance
-
-The report was that the same bot spoke well on one call and badly on the next.
-That is variance, and variance means the instruction left a choice open.
-
-**A step instruction is too vague if two runs would say different things — not
-different words, different things.** Wording should vary; content should not.
-
-My own offenders, and why:
-
-- *"the one feature that sets it apart"* — a judgement the model makes fresh each
-  call, so it picks differently each time. Fix: name the feature per model in the
-  facts, so there is nothing left to choose.
-- *"two or three sentences"* — a range is a choice. Say which.
-- *"say back what you are passing on"* — say back *what*, exactly. List the fields.
-
-The rule: **a step names the fields to say, in order. Any judgement left to the
-model is pre-resolved in the facts.** Wherever a step reads like it needs taste,
-the taste belongs in the facts section, decided once.
+The standing rule from all of this: **the pre-existing prompt is the baseline, and a
+change has to beat it on a real call.** Three rounds of style theory did not.
 
 ## 4. The section skeleton
 
@@ -1508,19 +1403,7 @@ Run before any prompt ships. This is the Auditor module's specification.
 71l. The script rule survives a mismatched greeting and a mismatched caller
 71m. Discovery shape is chosen by catalogue familiarity: ask when they know it, recommend when they do not
 71n. STT tolerance for names is present, with the predictable near-misses listed
-71o. Every fixed line passes the six checks in the platform rules
-71p. No step instruction leaves a content choice open; judgement is pre-resolved in the facts
-71q. Sentence counts are exact, never a range
-71r. Every question in the flow carries its reason; none asks cold
-71s. Every objection handler ends on a question
-71t. No opener is used twice in a row; "जी" is not the default
-71u. Every commitment names who acts and the purpose of their call
-71u-b. No timeframe appears unless the client supplied it
-71v. The no-route captures what they do want before closing
-71w. No reason clause appears on a question whose purpose is self-evident
-71x. Where a reason is given it precedes the question, and the line ends on the mark
-71y. No line echoes the caller's answer back or praises their choice
-71z. Every step has a two-tries-then-drop rule, and no step is revisited once passed
+71o. No rule in the generated prompt fires on every turn; each states when it applies
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome
