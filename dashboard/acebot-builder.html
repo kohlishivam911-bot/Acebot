@@ -258,9 +258,57 @@ const CRULES = [
    opts:[["slight","Slight nudge","One polite justification, then close respectfully."],
          ["high","High nudge","Justify, and if they still decline, route to a callback first."]], def:"slight"}
 ];
+
+/* ── Find a way to call the model from inside this page. ────────────────────────
+   Chat artifacts expose a flat window.claude with a completion function; capability
+   artifacts expose claude.use(<name>). Neither is guaranteed, and which one is present
+   depends on the viewer, so probe instead of assuming — the docs' own instruction is to
+   design for absence and light the feature up when it resolves. */
+const LLM = (async () => {
+  const c = window.claude;
+  if (!c) return null;
+
+  // 1. flat chat-artifact surface: a function taking a prompt string.
+  for (const n of ["complete","completion","createCompletion","ask","prompt","generate","run"]) {
+    if (typeof c[n] === "function") {
+      return { how: "window.claude." + n, call: t => c[n](t) };
+    }
+  }
+
+  // 2. capability surface. Names are contract-versioned, so try the plausible ones;
+  //    an unknown name resolves null rather than throwing.
+  if (typeof c.use === "function") {
+    for (const n of ["llm","model","completion","complete","messages","anthropic","claude","ai","inference"]) {
+      try {
+        const ns = await c.use(n);
+        if (!ns) continue;
+        for (const m of ["complete","completion","createMessage","messages","generate","ask","run","invoke"]) {
+          if (typeof ns[m] === "function") {
+            // We do not know this function's argument shape, so try a plain string first
+            // and fall back to a message envelope. `typeof f.length` is "number", never 1 —
+            // arity cannot be used to decide, which is what broke the first version.
+            const unwrap = r => typeof r === "string"
+              ? r : (r?.text || r?.content?.[0]?.text || r?.completion || r?.result || "");
+            return { how: 'claude.use("' + n + '").' + m, call: async t => {
+              for (const arg of [t, { prompt: t }, { messages: [{ role: "user", content: t }] }]) {
+                try {
+                  const out = unwrap(await ns[m](arg));
+                  if (out && out.trim()) return out;
+                } catch (e) { /* wrong shape — try the next */ }
+              }
+              throw new Error("could not find the argument shape this model expects");
+            }};
+          }
+        }
+      } catch (e) { /* not this one */ }
+    }
+  }
+  return null;
+})();
+
 const $ = id => document.getElementById(id);
 const S = { client:"", industry:DATA.industries[0], dir:"inbound", goal:"", persona:"",
-            gender:"female", langs:["hindi"], tools:["hangup"], crules:{stt:1,lang:1,pronun:1,nudge:1}, seen:false, copt:{lang:"strict",nudge:"slight"}, cross:"", reqs:"", files:[], waiting:false, copied:false, tab: GENERATED.prompt ? "P" : "U" };
+            gender:"female", langs:["hindi"], tools:["hangup"], crules:{stt:1,lang:1,pronun:1,nudge:1}, seen:false, llm:false, llmErr:"", copt:{lang:"strict",nudge:"slight"}, cross:"", reqs:"", files:[], waiting:false, copied:false, tab: GENERATED.prompt ? "P" : "U" };
 
 $("industry").innerHTML = DATA.industries.map(i=>`<option>${i}</option>`).join("");
 $("industry").onchange = e => { S.industry = e.target.value; render(); };
@@ -499,9 +547,15 @@ function render(){
       $("out").style.userSelect="text";
     } else {
       $("out").innerHTML = S.waiting
-        ? '<div class="load"><i class="spin"></i><b>Waiting on the chat</b>'
-          + '<span>Your config is copied. <b>Paste it into the chat and send</b> \u2014 nothing '
-          + 'runs until you do. The finished prompt replaces this panel.</span></div>'
+        ? '<div class="load"><i class="spin"></i><b>'
+          + (S.llm ? 'Generating your prompt' : 'Waiting') + '</b><span>'
+          + (S.llm
+              ? 'Running in this page. The prompt opens here when it\u2019s ready.'
+              : (S.llmErr
+                  ? 'In-page generation failed \u2014 ' + S.llmErr + '. Config copied instead.'
+                  : 'This viewer exposes no model to the page, so the config is copied. '
+                    + 'The local dashboard generates on your credits with no copy step.'))
+          + '</span></div>'
         : '<div class="empty">No prompt yet.<br><br>'
           + 'Fill the form, then hit <b>Generate prompt</b>.<br>'
           + 'The finished prompt appears here.</div>';
@@ -526,6 +580,7 @@ function render(){
   w.innerHTML='<div class="mask" id="mask"><div class="modal">'
     +'<div class="mh"><b>'+(GENERATED.client||"Prompt")+' \u2014 ready</b>'
     +'<span class="stat">'+est(GENERATED.prompt).toLocaleString()+' tok</span>'
+    +(GENERATED.via?'<span class="hint" style="margin:0">via '+GENERATED.via+'</span>':"")
     +'<button class="btn" id="mx">close</button></div>'
     +(words.length?'<div class="pron"><div class="hint" style="margin-bottom:7px">'
       +'Add these to your TTS dictionary \u2014 they are not in the prompt.</div>'
@@ -600,11 +655,31 @@ $("go").onclick=async()=>{
     if(miss[0][0]) $(miss[0][0]).focus();
     return;
   }
-  const copied = await copyText(config());
-  S.waiting=true; S.copied=copied; S.tab="P"; render();
-  b.innerHTML = '<i class="spin"></i>Waiting on the chat';
+  const llm = await LLM;
+  S.waiting=true; S.tab="P"; S.seen=false; S.llm=!!llm; render();
+  b.innerHTML = '<i class="spin"></i>Generating';
   b.classList.add("busy");
-  $("goHint").textContent = copied ? "" : "Copy the text below, then paste it in the chat.";
+  $("goHint").textContent = "";
+
+  if (llm) {
+    try {
+      const text = await llm.call(DATA.method + "\n\nPLATFORM RULES to paste through verbatim:\n"
+        + DATA.platform + "\n\n" + config());
+      GENERATED.prompt = (text || "").trim();
+      GENERATED.client = S.client || "Prompt";
+      GENERATED.via = llm.how;
+      if (!GENERATED.prompt) throw new Error("the model returned nothing");
+      S.waiting=false; b.innerHTML="Generate prompt"; b.classList.remove("busy"); render();
+      return;
+    } catch (e) {
+      S.llmErr = e.message || String(e);
+    }
+  }
+  // No in-page model, or the call failed: fall back to the copy path.
+  S.copied = await copyText(config());
+  b.innerHTML = '<i class="spin"></i>Waiting';
+  $("goHint").textContent = S.copied ? "" : "Copy the text below, then send it.";
+  render();
 };
 
 (async()=>{
