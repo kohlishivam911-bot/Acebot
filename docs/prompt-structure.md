@@ -1307,6 +1307,57 @@ Then write only the sections the answers call for. **A section that no
 answer asked for is padding, and a section the answers demand cannot be inherited from
 another client's file.**
 
+## 3h. Never assume a property of the caller the brief did not state
+
+The Emeritus bot recommended a management specialisation to someone before knowing their
+role, then closed the call on an intern. Both come from one assumption I made and was
+never given: **that everyone who picks up is a working professional.**
+
+Nobody said that. I was given an industry, a client and a goal. **Who answers the phone
+was not in the brief**, and inventing it produced a bot that talked past the actual
+person on the line.
+
+The same trap sits in every industry. A property bot does not know they are a
+first-time buyer. A healthcare bot does not know the caller is the patient. An insurance
+bot does not know they already have a policy. A recruitment bot does not know they are
+looking to move.
+
+**Where the flow depends on such a property, the flow must find it out and handle both
+answers.** Not an assumption baked into a recommendation — a step that asks, and a real
+branch for the answer you were not expecting. And the unexpected branch is a branch, not
+an exit: someone who does not fit the usual profile still gets the nudge and the offer
+before anything closes.
+
+So, before writing steps, list every property of the caller the flow relies on. For each
+one, either the brief stated it, or **it becomes a question with two branches.** A
+property that is neither is a bug waiting for a real call.
+
+## 3i. Cross-selling, when the rule is switched on
+
+Taken from Bob, which had it right, and fitted to instruction-based prompts.
+
+**The primary is always pitched first, and cross-selling is a fallback — never the
+opening move.** No alternate is mentioned until the primary has genuinely been explored.
+
+**It fires on one trigger only:** the caller states a concrete requirement — a budget, a
+variant, a location, a timeline — that **no** primary option can satisfy. Before moving
+off the primary, every qualifying primary option is presented; exhaust it first. Never
+cross-sell to deflect a question the primary's own facts answer, never on a positive
+signal, and never to fill a silence.
+
+**One alternate at a time, in the ranked order given.** Skip any that does not fit what
+they actually said. When the alternates run out, or none fit, offer a senior consultant
+or a callback and then close normally — never keep cycling.
+
+**A cross-sell confirmation does not end the call**; it goes to the same closures as
+anything else.
+
+Written as instructions rather than scripted per-product dialogue, this costs a section
+of about a hundred and fifty tokens instead of a block per product per language.
+
+**Given no ranked list, ask for one.** Never invent alternates: the ranking is a
+commercial decision and guessing it puts the wrong product first.
+
 ## 4. The section skeleton
 
 Order is load-bearing. Interrupts sit above the flow because they are checked
