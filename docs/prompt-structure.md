@@ -211,8 +211,11 @@ roughly a quarter of the budget, and the facts did not shrink. At that point
 something has to leave the prompt, and the choice is not free-form:
 
 **Delivery rules have no retrieval path; facts do.** So facts move and rules stay
-— filtered by §4a, which keeps anything routing-critical in the prompt because a
-70% retriever cannot carry a gate.
+— filtered by §4a. **Correction: the platform's RAG is reliable, not the ~70% this
+section originally assumed.** That does not remove the reason routing-critical facts
+stay in-prompt — retrieval returns text, not a value the flow can branch on
+deterministically. A keyed fact still wants a tool (§1a-viii) or an in-prompt slot;
+what changed is that everything else can go confidently to the KB.
 
 One move paid for itself twice over: **speak the clinic area, not the street
 address, and send the address by SMS.** It is cheaper in tokens and it is better
@@ -344,15 +347,17 @@ pairs from each bot's own steps rather than generic ones.
 A budget lever that §4a missed by framing everything as prompt-versus-RAG.
 
 The healthcare prompt spends roughly 200 tokens on a six-row doctor table — name,
-years, fee, per city per department. By §4a that has to stay in the prompt: it is
-quoted on nearly every call and a wrong fee is a commercial error, so a 70%
-retriever cannot carry it.
+years, fee, per city per department. It is quoted on nearly every call and a wrong
+fee is a commercial error, so §4a's instinct is to keep it in-prompt rather than
+trust retrieval for it.
 
-But it is not a retrieval problem at all. It is a **deterministic lookup keyed on
-two values the flow has already captured** — city and department. A
-`get_doctor(city, department)` tool returns it at 100% accuracy, not 70%, removes
-the table from the prompt, and makes a hallucinated fee structurally impossible
-rather than merely forbidden.
+But it is not a retrieval problem at all, and this holds even with the platform's
+RAG confirmed reliable. It is a **deterministic lookup keyed on two values the flow
+has already captured** — city and department. A `get_doctor(city, department)` tool
+returns the exact row every time — not a retrieval match, an index — removes the
+table from the prompt, and makes a hallucinated fee structurally impossible rather
+than merely forbidden. A keyed fact wants a tool before it wants either the prompt
+or the KB.
 
 So the triage in §4a needs a prior step: before asking whether a fact belongs in
 the prompt or in retrieval, ask whether it is **structured and keyed**. If the flow
@@ -1358,6 +1363,46 @@ of about a hundred and fifty tokens instead of a block per product per language.
 **Given no ranked list, ask for one.** Never invent alternates: the ranking is a
 commercial decision and guessing it puts the wrong product first.
 
+## 3j. Tools, variables, and the two system fixtures
+
+The platform names its own tools and variables; the generator must use the platform's
+names, not its own descriptive ones. Six tools exist, each with a fixed backend name
+that goes into the prompt verbatim wherever the tool is invoked:
+
+- **Hangup** → `hangup_call`. Every closure ends on this, on the same turn as the
+  closing line, never on a turn that asked a question.
+- **Date Time** → `/r`. The rule's field name, day validator, date range, minimum
+  notice, time range and timezone are configured **in the platform, not the prompt** —
+  the prompt only ever says something like "Check available date and time using /r."
+  Never restate the rule's configured logic in prose; that duplicates a fact that can
+  drift out of sync with the backend config.
+- The other four (API Request, Transfer, Received Webhook, Handoff) keep their
+  descriptive names — there is no shorter backend token for them.
+
+**Two system variables are not tool-gated and not optional:**
+
+- `{{call_datetime_iso}}` is **always included**, in every generated prompt, whether or
+  not Date Time is selected. It costs one line and removes an entire class of
+  past-date acceptance bugs.
+- When Date Time (`/r`) is also selected, fold both into one block rather than two
+  separate mentions:
+
+  ```
+  ## DATE & TIME RULES
+
+  > **Current call date and time: {{call_datetime_iso}}**
+
+  - **[NON-NEGOTIABLE]** Any date or time in /r that is in the past relative to
+    {{call_datetime_iso}} must be immediately rejected — no exceptions.
+    - Today's date with a time already passed → also reject.
+    - Never auto-correct or assume a future date. Ask them to choose again.
+  - Never book an invalid date (तीस फरवरी). Never assume a slot — confirm before /r.
+  ```
+
+**Custom variables** are free text the user names (e.g. "user name") and the generator
+renders as `{{user_name}}` wherever the use case needs it — never invented, never
+renamed, exactly the identifier given.
+
 ## 4. The section skeleton
 
 Order is load-bearing. Interrupts sit above the flow because they are checked
@@ -1544,6 +1589,11 @@ Run before any prompt ships. This is the Auditor module's specification.
 71o. No rule in the generated prompt fires on every turn; each states when it applies
 71p. The section list was derived from the eight questions in 3g, not inherited from another client
 71q. No section exists that none of the answers called for
+71r. hangup_call, not hangup_tool or any other name, on every closure
+71s. {{call_datetime_iso}} appears in every prompt, tool-gated or not
+71t. Date Time's configured rule logic is never restated in prose — only "using /r"
+71u. No emoji anywhere; no unnecessary word — every line earns its tokens
+71v. STT tolerance is unconditional, part of the platform rules, never a toggle
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome

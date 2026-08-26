@@ -20,7 +20,7 @@ nearly 3× the budget of the bot prompt we now need to produce.
 | Constraint | Value | Consequence |
 |---|---|---|
 | Token ceiling | 4,000, **system prompt only** | Turn history and tool definitions sit outside. The §4 allocation applies in full. |
-| Knowledge retrieval | RAG exists, **~70% accurate** | Not a binary. Drives a two-tier KB (§4a) and makes an explicit low-confidence deferral rule mandatory. |
+| Knowledge retrieval | RAG exists and is **reliable** | Correction, later: this was measured at ~70% early on; the platform's RAG is now accurate. Facts can be pushed to the KB with confidence rather than duplicated in-prompt — see §4a. |
 | End-call tool | Exists, **silent** — bot speaks the goodbye | No double-closure risk; that whole apparatus drops. Closing lines now *end on a farewell* — inverting Bob's rule. Whitelist stays (§6). |
 | Greeting | **Pre-recorded**, plays before the LLM | Step 1 opens directly on the first qualifier; greetings banned outright. Sharpens the first-turn language trap (§6a). |
 
@@ -98,27 +98,33 @@ because early tokens hold attention best and both govern every turn.
 | 3 | Identity + mission | ~140 | Name, company, role, tone, AI disclosure, single CTA, what the call is not. Persona gender where regional verb forms inflect. |
 | 4 | Language control | ~260 | One `ACTIVE_LANGUAGE`, starts at primary every call. Switch on explicit request only — never on the language the lead speaks. Yes/no/go-ahead words per language as *answers*. Carry Bob's closed-world phrasing verbatim — the highest-value tokens in the prompt, and now the *sole* defence against the first-turn trap (§6a). |
 | 5 | Flow state machine | ~1250 | A table, not prose. Elastic — scales with step count. |
-| 6 | Knowledge facts (Tier 1) | ~700 | Only facts that earn a slot per §4a. Bare facts, no prose framing. Long tail goes to RAG. |
-| 7 | RAG boundary | ~90 | Low-confidence deferral rule. Cheap, and doing more work than the KB itself at 70% retrieval. |
+| 6 | Knowledge facts (Tier 1) | ~700 | Only facts that earn a slot per §4a — high-stakes or high-frequency. Everything else goes to RAG, confidently. |
+| 7 | RAG boundary | ~90 | One line stating the KB is authoritative for anything not in Tier 1. Cheap, and it lets the prompt shed weight onto retrieval instead of duplicating it. |
 | 8 | Objection patterns | ~380 | Not scripts: one pattern (acknowledge → one reframe → return to the exact step) plus topics mapped to answering facts. |
 | 9 | Recovery / edge cases | ~300 | Busy, not interested, DND, hostile, silence, voicemail, wrong person, off-KB. One line each, each naming its exit. |
 | 10 | Exit protocol + closings | ~200 | Closing lines **verbatim** with real farewells — they are the hangup whitelist. No double-closure apparatus needed. |
 | 11 | Variables + capture | ~110 | What the call must return, with allowed values. |
-| — | Headroom | ~250 | Larger than first drafted, because RAG absorbs the long-tail KB. |
+| — | Headroom | ~250 | RAG absorbs the long-tail KB, so this stays free for use-case content instead of facts. |
 
 Total: 4,000 exactly. Two sections are elastic and trade against each other —
 FLOW scales with step count, Tier-1 KB with how much the bot may state unaided.
 
-## 4a. KB triage at 70% retrieval
+## 4a. KB triage — correction: RAG is reliable, not ~70%
 
-RAG existing does not mean facts leave the prompt. A ~30% miss rate means a
+**Correction to what follows.** RAG accuracy was assumed at ~70% early in this project;
+it is confirmed reliable. That changes the triage bias: default to the KB rather than
+duplicating a fact in-prompt, and reserve an in-prompt slot only for what §4a below
+still calls high-stakes or high-frequency — not for hedging against retrieval misses.
+The token math in the table above already reflects this.
+
+RAG existing does not mean every fact leaves the prompt. Even at high accuracy, a
 wrong or absent answer on roughly 3 calls in 10, so placement is a
 **damage × frequency** decision, not a space decision.
 
 **State it in the prompt if any of these hold:**
 
 - **It gates a flow branch.** Non-negotiable. If step 3 routes on a threshold and
-  the threshold comes from a 70% retriever, the state machine's routing is 70%
+  the threshold used to come from a 70% retriever; corrected, RAG is reliable, so
   reliable. Routing-critical facts are always in-prompt.
 - **It is asked on more than roughly a third of calls.** Price, eligibility,
   timing, location. High frequency turns a 30% miss into a daily incident.
@@ -273,8 +279,8 @@ proven with a plain bot.
 
 ## 9. Open questions (ordered by design impact)
 
-Resolved — see §0: budget scope (system prompt only), knowledge retrieval (RAG at
-~70%), end-call tool (silent), greeting (pre-recorded).
+Resolved — see §0: budget scope (system prompt only), knowledge retrieval (RAG,
+reliable), end-call tool (silent), greeting (pre-recorded).
 
 Still open:
 

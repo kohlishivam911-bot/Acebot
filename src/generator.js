@@ -301,6 +301,12 @@ export function buildUserMessage(cfg) {
 
 // Latin ~4 chars/token, Indic scripts fragment far harder under BPE at ~2. An estimate with real
 // error bars — the budget meter says so rather than pretending to precision.
+//
+// The inference model is now known to be Gemma (chosen for cost + latency). This estimator was
+// tuned against Claude/GPT-family BPE, not Gemma's SentencePiece tokenizer, so the error bars are
+// wider than they look — Gemma's Indic fragmentation in particular may differ meaningfully. Worth
+// swapping for a real Gemma tokenizer count (most Gemma checkpoints ship one) rather than trusting
+// this further; treat every count on the dashboard as an estimate until that swap happens.
 export function estimateTokens(text) {
   if (!text) return 0;
   const indic = (text.match(/[ऀ-෿]/g) || []).length;
