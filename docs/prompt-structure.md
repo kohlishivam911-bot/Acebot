@@ -1403,6 +1403,85 @@ that goes into the prompt verbatim wherever the tool is invoked:
 renders as `{{user_name}}` wherever the use case needs it — never invented, never
 renamed, exactly the identifier given.
 
+## 3k. Two more reference flows, read for shape only
+
+Two prompts supplied purely as training on **how a flow bends to its use case** — Redcliff
+Labs (inbound diagnostics booking) and Acefone (outbound sales qualification). Saved under
+`prompts/canonical/*.reference.md`.
+
+**Scope of this section, stated because I got it wrong once already.** Every rule already
+in this file and in the platform rules **stands unchanged**. Nothing here overrides the
+language rules, the register rules, the section-derivation method, the harm model, the
+nudge rule, the budget discipline, or anything else. These two are read for **flow shape
+and use-case reasoning only** — not for their language rules, not for their section names
+(Personality / Environment / Tone), not for their guardrail phrasing, not for their filler
+lists. Take the structural lesson, leave the surface.
+
+### What each one's shape reveals
+
+**Redcliff — a booking flow that owes the caller information before it collects any.**
+Step 3 is fasting instructions, before name, address or slot. That ordering is the lesson:
+**a constraint the caller must act on is disclosed early, not at the confirmation.** Ten
+hours of fasting is useless information at the end of the call. Any flow with a
+precondition on the customer's side — fasting, documents to bring, someone who must be
+present, a payment ready — discloses it at the point it becomes actionable, which is
+almost always earlier than the summary.
+
+**Redcliff — a stated pacing target, and warmth that costs no turns.** Ninety seconds for
+the happy path, with the explicit instruction that warmth comes from word choice and not
+from extra turns: fold the acknowledgement into the same breath as the next question
+rather than spending a turn on it. That resolves a tension I have hit repeatedly — warm
+and brisk are not opposed, but only if warmth is carried inside the working sentence. A
+booking call has a target duration; a discovery call does not.
+
+**Redcliff — the closure is deliberately exempt from the pacing target.** "The pacing
+target is for the overall call, not this step." A summary that gets clipped to hit a
+duration reads as a receipt. **Where a flow states a speed target, name the step that is
+exempt from it** — otherwise the model optimises the one place slowness is a feature.
+
+**Redcliff — a composite step is not done until every part of it is captured.** Name and
+age are asked in one natural question, and the step explicitly does not close on a partial
+answer: given only one, ask for the missing piece specifically. **Every step that bundles
+two fields needs that rule written**, or the model treats the turn as complete because it
+asked, not because it got an answer.
+
+**Acefone — six named qualification dimensions, and a stated priority order for when the
+call is going badly.** Need, budget, authority, team size, timeline, pain point — and then
+a conditional saying that a busy prospect gets only need, team size and timeline. **That
+is the pattern worth taking: a fixed dimension list plus a documented subset to fall back
+to.** Most flows I have written degrade by dropping whatever step comes next; naming the
+survivors in advance degrades on purpose.
+
+**Acefone — a branching follow-up keyed on the previous answer.** Voicebots asks for call
+volume; every other product asks for team size. One question, two shapes, chosen by what
+was just captured. Cheaper than two steps and it never asks a question the answer has
+already made irrelevant.
+
+**Acefone — the pain-point step inverts the turn discipline on purpose.** "This is the
+most important question — let them speak. Do not interrupt or summarise prematurely."
+Every other step is one question and move on. **One step per flow may be the listening
+step, and it should be named**, because a bot that paces every turn identically cannot
+tell a slot time from the reason someone is actually buying.
+
+**Acefone — "just send me an email" is accepted, not converted.** It collects only what is
+needed to honour the request and explicitly stops qualifying. **A caller redirecting the
+channel is not an objection to overcome** — the flow abandons its own goal and serves the
+request instead. That is a different move from the nudge, and both belong in a flow.
+
+**Both — a proactive-capture rule stated once, at the top.** If they volunteer something
+belonging to a later step, capture it silently, mark that step done, never confirm it
+back. Both prompts carry it as a standing rule rather than repeating "skip if already
+answered" on every step. Cheaper and it cannot be applied inconsistently.
+
+### The generalisation
+
+Inbound service booking and outbound qualification are both "collect fields, then close",
+and their flows still differ in ordering, in pacing, in which step is allowed to run long,
+and in what happens when the call degrades. **The field list is the least interesting part
+of a flow.** What makes it right is: what must be disclosed before it is asked for, which
+step is exempt from the pace, which step is the listening step, which fields survive a
+bad call, and which caller requests are served rather than overcome.
+
 ## 4. The section skeleton
 
 Order is load-bearing. Interrupts sit above the flow because they are checked
@@ -1594,6 +1673,12 @@ Run before any prompt ships. This is the Auditor module's specification.
 71t. Date Time's configured rule logic is never restated in prose — only "using /r"
 71u. No emoji anywhere; no unnecessary word — every line earns its tokens
 71v. STT tolerance is unconditional, part of the platform rules, never a toggle
+71w. A precondition the caller must act on is disclosed when actionable, not at the summary
+71x. Any step bundling two fields states that a partial answer does not close it
+71y. Where a pace target exists, the step exempt from it is named
+71z. The flow names which fields survive a degraded call, rather than dropping the next one
+72a. One step may be the listening step, and it is named as such
+72b. A request to change channel is served, not treated as an objection to nudge past
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome
