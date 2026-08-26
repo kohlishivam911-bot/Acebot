@@ -397,9 +397,28 @@ const LLM = (async () => {
   return null;
 })();
 
+/* What this viewer actually exposes — so a failure names the reason instead of guessing. */
+const LLM_DIAG = (async () => {
+  const c = window.claude;
+  if (!c) return "window.claude is not present at all in this viewer.";
+  const own = [];
+  for (const k in c) { try { own.push(k + ":" + typeof c[k]); } catch(e) {} }
+  const proto = Object.getOwnPropertyNames(Object.getPrototypeOf(c) || {}).filter(k => k !== "constructor");
+  let caps = [];
+  if (typeof c.use === "function") {
+    for (const n of ["llm","model","completion","complete","messages","anthropic","claude","ai",
+                     "inference","artifact","self","downloads","mcp","db","room","user"]) {
+      try { if (await c.use(n)) caps.push(n); } catch(e) {}
+    }
+  }
+  return "window.claude has [" + (own.join(", ") || "no enumerable keys")
+    + "]" + (proto.length ? "; prototype [" + proto.join(", ") + "]" : "")
+    + "; use() resolves [" + (caps.join(", ") || "nothing") + "].";
+})();
+
 const $ = id => document.getElementById(id);
 const S = { client:"", industry:DATA.industries[0], dir:"inbound", goal:"", persona:"",
-            gender:"female", langs:["hindi"], tools:["hangup"], crules:{lang:1,pronun:1,nudge:1}, dtRules:[], vars:[], seen:false, llm:false, llmErr:"", copt:{lang:"strict",nudge:"slight"}, cross:"", reqs:"", files:[], waiting:false, copied:false, tab: GENERATED.prompt ? "P" : "U" };
+            gender:"female", langs:["hindi"], tools:["hangup"], crules:{lang:1,pronun:1,nudge:1}, dtRules:[], vars:[], seen:false, llm:false, llmErr:"", diag:"", copt:{lang:"strict",nudge:"slight"}, cross:"", reqs:"", files:[], waiting:false, copied:false, tab: GENERATED.prompt ? "P" : "U" };
 
 $("industry").innerHTML = DATA.industries.map(i=>`<option>${i}</option>`).join("");
 $("industry").onchange = e => { S.industry = e.target.value; render(); };
@@ -673,8 +692,10 @@ function render(){
               ? 'Running in this page. The prompt opens here when it\u2019s ready.'
               : (S.llmErr
                   ? 'In-page generation failed \u2014 ' + S.llmErr + '. Config copied instead.'
-                  : 'This viewer exposes no model to the page, so the config is copied. '
-                    + 'The local dashboard generates on your credits with no copy step.'))
+                  : 'This viewer exposes no model to the page, so nothing can run here. '
+                    + 'The local dashboard generates on your credits with no copy step.'
+                    + (S.diag ? '<br><br><span style="font-family:ui-monospace;font-size:10.5px;'
+                        + 'opacity:.8;display:block;text-align:left">' + S.diag + '</span>' : '')))
           + '</span></div>'
         : '<div class="empty">No prompt yet.<br><br>'
           + 'Fill the form, then hit <b>Generate prompt</b>.<br>'
@@ -787,7 +808,9 @@ $("go").onclick=async()=>{
     return;
   }
   const llm = await LLM;
-  S.waiting=true; S.tab="P"; S.seen=false; S.llm=!!llm; render();
+  // A previously generated prompt must not sit on screen while a new one is pending.
+  GENERATED.prompt = ""; GENERATED.greeting = ""; GENERATED.via = "";
+  S.waiting=true; S.tab="P"; S.seen=false; S.llm=!!llm; S.llmErr=""; render();
   b.innerHTML = '<i class="spin"></i>Generating';
   b.classList.add("busy");
   $("goHint").textContent = "";
@@ -809,7 +832,8 @@ $("go").onclick=async()=>{
       S.llmErr = e.message || String(e);
     }
   }
-  // No in-page model, or the call failed: fall back to the copy path.
+  // No in-page model, or the call failed: report why, and fall back to the copy path.
+  if (!llm) { try { S.diag = await LLM_DIAG; } catch(e) { S.diag = ""; } }
   S.copied = await copyText(config());
   b.innerHTML = '<i class="spin"></i>Waiting';
   $("goHint").textContent = S.copied ? "" : "Copy the text below, then send it.";
