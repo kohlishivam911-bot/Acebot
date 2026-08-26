@@ -1295,7 +1295,15 @@ only a label on a handoff.
 harmless. Reject exhaustively when a near-miss does damage — which is why healthcare
 lists what it cannot treat and automotive does not.
 
-Answer the nine, then write only the sections the answers call for. **A section that no
+**These nine are a starting set, not a checklist.** A use case may settle in four of
+them and need two the list does not contain — a regulated industry raises a disclosure
+question, a bot with a live tool raises a failure-mode question, a support line raises a
+question about what the caller is already angry about. Ask the ones that bear on this
+business, skip the ones that do not, and add the ones it forces. **Running all nine every
+time is the same failure as applying a rule every turn: the method becomes a ritual and
+the output shows it.**
+
+Then write only the sections the answers call for. **A section that no
 answer asked for is padding, and a section the answers demand cannot be inherited from
 another client's file.**
 
@@ -1484,7 +1492,7 @@ Run before any prompt ships. This is the Auditor module's specification.
 71n. STT tolerance for names is present, with the predictable near-misses listed
 71o. No rule in the generated prompt fires on every turn; each states when it applies
 71p. The section list was derived from the eight questions in 3g, not inherited from another client
-71q. No section exists that none of the nine answers called for
+71q. No section exists that none of the answers called for
 71. The turn just before an ask names a specific instance, never a category
 72. If the specific is not knowable yet, the ask waits for the step that produces it
 73. Every non-emergency, non-abuse, non-dead-line closure is two turns regardless of outcome

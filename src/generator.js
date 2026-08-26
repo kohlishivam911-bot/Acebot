@@ -66,7 +66,6 @@ export const INDUSTRIES = [
 
 export const LANGUAGES = [
   { id: "english", label: "English", native: false },
-  { id: "hinglish", label: "Hinglish", native: true, script: "Devanagari for Hindi words, Roman for English" },
   { id: "hindi", label: "Hindi", native: true, script: "Devanagari" },
   { id: "marathi", label: "Marathi", native: true, script: "Devanagari" },
   { id: "gujarati", label: "Gujarati", native: true, script: "Gujarati" },
