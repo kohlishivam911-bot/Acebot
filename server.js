@@ -63,7 +63,87 @@ app.get("/api/health", (req, res) => res.json({
   anthropic: !!ANTHROPIC_API_KEY,
   model: GENERATOR_MODEL,
   rules: !!readDoc("platform-rules.md"),
+  cli: true,
 }));
+
+// ── Generate via the local Claude Code CLI ───────────────────────────────────
+// The CLI holds the user's own subscription credentials, so a generation started here is
+// billed to their Claude usage — no ANTHROPIC_API_KEY, and nothing to paste into a chat.
+// We shell out rather than call the API because the OAuth token is passed to the CLI on a
+// file descriptor and is deliberately not readable as an environment variable.
+import { spawn } from "node:child_process";
+
+const CLI = process.env.CLAUDE_CLI || "claude";
+
+function cliAvailable() {
+  return new Promise(resolve => {
+    const p = spawn(CLI, ["--version"], { stdio: "ignore" });
+    p.on("error", () => resolve(false));
+    p.on("close", code => resolve(code === 0));
+  });
+}
+
+app.get("/api/generate/available", async (req, res) =>
+  res.json({ cli: await cliAvailable(), key: !!ANTHROPIC_API_KEY }));
+
+app.post("/api/generate", async (req, res) => {
+  const { system, message } = req.body || {};
+  if (!system || !message) {
+    return res.status(400).json({ error: "system and message are both required" });
+  }
+  if (!(await cliAvailable())) {
+    return res.status(503).json({
+      error: "The Claude Code CLI was not found. Install it, or set ANTHROPIC_API_KEY and use /api/anthropic.",
+    });
+  }
+
+  // Keep the socket alive: a full prompt takes well over a minute and proxies cut idle connections.
+  res.writeHead(200, {
+    "content-type": "application/json",
+    "cache-control": "no-store",
+    "x-accel-buffering": "no",
+  });
+  const beat = setInterval(() => { try { res.write(" "); } catch {} }, 12000);
+
+  const args = [
+    "-p",
+    "--output-format", "json",
+    "--model", GENERATOR_MODEL,
+    "--append-system-prompt", system,
+    "--allowed-tools", "",          // generation only; the CLI must not touch the filesystem
+    "--permission-mode", "default",
+  ];
+  const child = spawn(CLI, args, { stdio: ["pipe", "pipe", "pipe"] });
+  let out = "", err = "";
+  child.stdout.on("data", d => { out += d; });
+  child.stderr.on("data", d => { err += d; });
+  child.stdin.end(message);
+
+  const kill = setTimeout(() => child.kill("SIGKILL"), 10 * 60 * 1000);
+
+  child.on("error", e => {
+    clearInterval(beat); clearTimeout(kill);
+    res.end(JSON.stringify({ error: "Could not start the CLI: " + e.message }));
+  });
+
+  child.on("close", code => {
+    clearInterval(beat); clearTimeout(kill);
+    if (code !== 0) {
+      return res.end(JSON.stringify({ error: (err || "the CLI exited with code " + code).slice(0, 800) }));
+    }
+    let prompt = "";
+    try {
+      const j = JSON.parse(out);
+      prompt = typeof j.result === "string" ? j.result : (j.result?.content?.[0]?.text || "");
+    } catch {
+      prompt = out;   // not JSON — hand back whatever came out rather than losing the work
+    }
+    if (!prompt.trim()) {
+      return res.end(JSON.stringify({ error: "The CLI returned nothing." }));
+    }
+    res.end(JSON.stringify({ prompt: prompt.trim(), via: "cli" }));
+  });
+});
 
 // ── Anthropic proxy ───────────────────────────────────────────────────────────
 app.post("/api/anthropic", async (req, res) => {

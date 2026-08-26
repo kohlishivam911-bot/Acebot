@@ -57,14 +57,17 @@ async function readKbFile(file) {
 
 /* ═══════════════ resilient fetch ═══════════════ */
 
-async function callClaude(body, onRetry) {
+async function callClaude(body, onRetry, useCli) {
   const RETRYABLE = new Set([429, 500, 502, 503, 504, 529]);
   for (let attempt = 1; attempt <= 4; attempt++) {
     try {
-      const r = await fetch("/api/anthropic", {
+      const r = await fetch(useCli ? "/api/generate" : "/api/anthropic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify(useCli
+          // The CLI endpoint takes a flat system + message pair, not the Messages API shape.
+          ? { system: body.system, message: body.messages[0].content.map(c => c.text || "").join("\n\n") }
+          : body),
       });
       if (!r.ok && RETRYABLE.has(r.status) && attempt < 4) {
         onRetry?.(attempt);
@@ -72,8 +75,8 @@ async function callClaude(body, onRetry) {
         continue;
       }
       const data = await r.json();
-      if (data.error) throw new Error(data.error.message || "generation failed");
-      return data.content?.[0]?.text || "";
+      if (data.error) throw new Error(data.error.message || data.error || "generation failed");
+      return useCli ? (data.prompt || "") : (data.content?.[0]?.text || "");
     } catch (e) {
       if (attempt === 4) throw e;
       onRetry?.(attempt);
@@ -170,6 +173,10 @@ export default function App() {
     const tick = setInterval(() => setPhase(phases[Math.min(++i, phases.length - 1)]), 14000);
 
     try {
+      const viaCli = health?.cli && !health?.anthropic;
+      if (viaCli && kb.some(f => f.kind === "pdf" || f.kind === "image")) {
+        throw new Error("PDFs and images need the API-key path — set ANTHROPIC_API_KEY, or paste the text into Requirements.");
+      }
       const cfg = { client, industry, direction, goal, personaName, personaGender, languages, tools, requirements, kbFiles: kb };
       const content = [{ type: "text", text: buildUserMessage(cfg) }];
       for (const f of kb) {
@@ -182,7 +189,7 @@ export default function App() {
         max_tokens: 16000,
         system: buildSystemPrompt(platform),
         messages: [{ role: "user", content }],
-      }, (n) => setPhase(`Reconnecting (attempt ${n})…`));
+      }, (n) => setPhase(`Reconnecting (attempt ${n})…`), health?.cli && !health?.anthropic);
       setOut(text.trim());
     } catch (e) {
       setErr(e.message);
